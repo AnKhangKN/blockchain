@@ -1,0 +1,150 @@
+frontend/
+│
+├── package.json
+├── next.config.js
+├── tsconfig.json
+├── .env.local                   # Chứa RPC_URL, CONTRACT_ADDRESS
+│
+├── public/
+│   ├── logo.png
+│   ├── banner.png
+│   └── icons/
+│
+├── src/
+│   ├── app/                     # App Router (Next.js 13+)
+│   │   ├── layout.tsx           # Layout chính
+│   │   ├── page.tsx             # Trang chủ (home)
+│   │   │
+│   │   ├── login/
+│   │   │   └── page.tsx         # Màn hình đăng nhập MetaMask
+│   │   │
+│   │   ├── dashboard/
+│   │   │   ├── page.tsx         # Trang tổng quan Admin
+│   │   │   ├── students/
+│   │   │   │   ├── page.tsx     # Quản lý sinh viên
+│   │   │   │   ├── [id].tsx     # Chi tiết sinh viên
+│   │   │   │   └── add.tsx      # Thêm sinh viên
+│   │   │   ├── teachers/
+│   │   │   │   ├── page.tsx     # Quản lý giảng viên
+│   │   │   │   └── add.tsx
+│   │   │   ├── subjects/
+│   │   │   │   ├── page.tsx     # Quản lý môn học
+│   │   │   │   └── add.tsx
+│   │   │   ├── grades/
+│   │   │   │   ├── page.tsx     # Quản lý điểm
+│   │   │   │   ├── add.tsx      # Nhập điểm mới
+│   │   │   │   └── history.tsx  # Lịch sử cập nhật điểm
+│   │   │   └── blockchain/
+│   │   │       ├── page.tsx     # Thông tin blockchain (hash, txs)
+│   │   │       └── verify.tsx   # Kiểm chứng giao dịch
+│   │   │
+│   │   ├── student/
+│   │   │   ├── page.tsx         # Trang sinh viên xem điểm
+│   │   │   └── history.tsx      # Lịch sử điểm on-chain
+│   │   │
+│   │   └── not-found.tsx        # Trang 404
+│   │
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── Header.tsx
+│   │   │   └── Footer.tsx
+│   │   ├── forms/
+│   │   │   ├── AddStudentForm.tsx
+│   │   │   ├── AddTeacherForm.tsx
+│   │   │   ├── AddSubjectForm.tsx
+│   │   │   └── AddGradeForm.tsx
+│   │   ├── blockchain/
+│   │   │   ├── ConnectWallet.tsx
+│   │   │   ├── ContractInfo.tsx
+│   │   │   └── TransactionStatus.tsx
+│   │   ├── ui/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Table.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   ├── Input.tsx
+│   │   │   └── Card.tsx
+│   │   └── shared/
+│   │       ├── Loader.tsx
+│   │       └── Toast.tsx
+│   │
+│   ├── hooks/
+│   │   ├── useContract.ts        # Gọi contract qua ethers.js
+│   │   ├── useMetamask.ts        # Kết nối MetaMask
+│   │   ├── useRole.ts            # Lấy role người dùng
+│   │   └── useToast.ts
+│   │
+│   ├── lib/
+│   │   ├── contractABI.json      # ABI import từ Hardhat
+│   │   ├── constants.ts          # Địa chỉ contract, network
+│   │   ├── blockchain.ts         # Hàm tiện ích gọi ethers
+│   │   └── formatters.ts
+│   │
+│   ├── services/
+│   │   ├── student.service.ts
+│   │   ├── teacher.service.ts
+│   │   ├── subject.service.ts
+│   │   └── grade.service.ts
+│   │
+│   ├── store/
+│   │   ├── userStore.ts          # Zustand hoặc Context API
+│   │   └── contractStore.ts
+│   │
+│   ├── styles/
+│   │   ├── globals.css
+│   │   ├── dashboard.css
+│   │   └── variables.css
+│   │
+│   └── utils/
+│       ├── roleCheck.ts
+│       ├── dateFormatter.ts
+│       └── storage.ts
+
+
+Module FE
+Module	Mô tả	Liên kết với Smart Contract
+Auth	Kết nối ví MetaMask, xác định vai trò	Kiểm tra địa chỉ ví trong contract AccessControl
+Student	CRUD sinh viên, tra cứu điểm	StudentManager.sol, GradeManager.sol
+Teacher	CRUD giảng viên, thêm điểm	AccessControl.sol, GradeManager.sol
+Subject	Quản lý môn học	SubjectManager.sol
+Grade	Ghi / đọc điểm, xem lịch sử	GradeManager.sol
+Blockchain	Hiển thị thông tin contract, transaction hash	Tất cả các contract
+UI Components	Giao diện: Button, Table, Modal	FE-only
+Hooks	Quản lý logic tái sử dụng (ethers.js, MetaMask)	FE ↔ Blockchain
+
+blockchain/
+│
+├── package.json
+├── hardhat.config.js
+├── .env
+│
+├── contracts/
+│   ├── AccessControl.sol        # Quản lý quyền (Admin / Teacher / Student)
+│   ├── StudentManager.sol       # Lưu danh sách sinh viên
+│   ├── SubjectManager.sol       # Lưu danh sách môn học
+│   └── GradeManager.sol         # Ghi / đọc điểm
+│
+├── scripts/
+│   ├── deploy.js                # Triển khai contract
+│   ├── addSampleData.js         # Thêm dữ liệu mẫu
+│   ├── verifyContract.js
+│   └── interact.js              # Gọi thử hàm contract
+│
+├── test/
+│   ├── accessControl.test.js
+│   ├── studentManager.test.js
+│   ├── subjectManager.test.js
+│   ├── gradeManager.test.js
+│   └── integration.test.js      # Test tổng hợp
+│
+├── artifacts/                   # Tự sinh (ABI, bytecode)
+└── cache/
+
+Module Smart Contract
+Module	File	Vai trò
+Access Control	AccessControl.sol	Phân quyền admin / teacher / student
+Student Management	StudentManager.sol	CRUD sinh viên (id, name, address)
+Subject Management	SubjectManager.sol	CRUD môn học (id, name, credit)
+Grade Management	GradeManager.sol	Ghi, cập nhật, xem điểm
+Deployment Scripts	scripts/deploy.js	Deploy tất cả contract & log địa chỉ
+Testing	test/*.js	Kiểm thử logic (Mocha + Chai)
