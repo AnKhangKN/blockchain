@@ -17,7 +17,7 @@ const initialStudents: Student[] = Array.from({ length: 42 }, (_, i) => ({
   name: `Sinh viên ${i + 1}`,
   email: `student${i + 1}@school.edu`,
   major: ["CNTT", "Kinh tế", "Luật", "Điện tử"][i % 4],
-  active: i % 3 !== 0, // random trạng thái
+  active: i % 3 !== 0,
 }));
 
 const PAGE_SIZE = 10;
