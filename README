@@ -98,6 +98,24 @@ frontend/
 │       └── storage.ts
 
 
+Admin được xem như “superuser”:
+CRUD Giảng viên
+CRUD Sinh viên
+CRUD Môn học
+CRUD Điểm
+Truy cập trang Blockchain Info
+
+Giảng viên có nhiệm vụ:
+Thêm môn học
+Thêm sinh viên vào lớp của mình
+Nhập điểm cho môn mình dạy
+Xem lịch sử giao dịch điểm mình nhập
+
+Sinh viên có 3 trang chính:
+Trang thông tin cá nhân
+Xem điểm
+Xem lịch sử điểm (on-chain events)
+
 Module FE
 Module	Mô tả	Liên kết với Smart Contract
 Auth	Kết nối ví MetaMask, xác định vai trò	Kiểm tra địa chỉ ví trong contract AccessControl
