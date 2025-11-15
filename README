@@ -163,3 +163,24 @@ Subject Management	SubjectManager.sol	CRUD môn học (id, name, credit)
 Grade Management	GradeManager.sol	Ghi, cập nhật, xem điểm
 Deployment Scripts	scripts/deploy.js	Deploy tất cả contract & log địa chỉ
 Testing	test/*.js	Kiểm thử logic (Mocha + Chai)
+
+
+
+Flow đăng nhập + liên kết ví blockchain
+
+User đăng nhập bằng tài khoản (email/password)
+Frontend gửi request /login tới backend.
+Backend xác thực email/password (MongoDB User).
+Nếu hợp lệ → backend trả về JWT access token + refresh token.
+JWT này dùng để xác thực các API khác (role-based).
+Liên kết ví blockchain
+Sau khi login, frontend yêu cầu user kết nối ví (MetaMask, Phantom…).
+User sign message trên ví để chứng minh quyền sở hữu địa chỉ blockchain.
+Frontend gửi address ví + signature tới backend kèm JWT xác thực user.
+Backend xác minh signature
+Dùng thư viện ethers.js hoặc web3.js để verify signature.
+Nếu hợp lệ → backend lưu địa chỉ ví vào document User MongoDB.
+Ví này sẽ dùng để call smart contract thêm grade hoặc đọc grade.
+Sử dụng blockchain
+Khi Teacher thêm điểm → backend kiểm tra role JWT → call smart contract từ Teacher wallet hoặc backend wallet.
+Student muốn xem điểm → backend đọc từ blockchain dựa trên address ví đã liên kết.

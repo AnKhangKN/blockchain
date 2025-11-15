@@ -36,7 +36,7 @@ const Students = () => {
         </ButtonComponent>
       </div>
 
-      <div className="border border-gray-200 mt-4">
+      <div className="border border-gray-200 mt-4 p-4">
         <TableComponent<Student> columns={columns} data={data} />
       </div>
     </div>
