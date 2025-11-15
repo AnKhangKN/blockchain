@@ -9,38 +9,35 @@ frontend/
 │   ├── logo.png
 │   ├── banner.png
 │   └── icons/
-│
-├── src/
-│   ├── app/                     # App Router (Next.js 13+)
-│   │   ├── layout.tsx           # Layout chính
-│   │   ├── page.tsx             # Trang chủ (home)
-│   │   │
-│   │   ├── login/
-│   │   │   └── page.tsx         # Màn hình đăng nhập MetaMask
-│   │   │
-│   │   ├── dashboard/
-│   │   │   ├── page.tsx         # Trang tổng quan Admin
-│   │   │   ├── students/
-│   │   │   │   ├── page.tsx     # Quản lý sinh viên
-│   │   │   │   ├── [id].tsx     # Chi tiết sinh viên
-│   │   │   │   └── add.tsx      # Thêm sinh viên
-│   │   │   ├── teachers/
-│   │   │   │   ├── page.tsx     # Quản lý giảng viên
-│   │   │   │   └── add.tsx
-│   │   │   ├── subjects/
-│   │   │   │   ├── page.tsx     # Quản lý môn học
-│   │   │   │   └── add.tsx
-│   │   │   ├── grades/
-│   │   │   │   ├── page.tsx     # Quản lý điểm
-│   │   │   │   ├── add.tsx      # Nhập điểm mới
-│   │   │   │   └── history.tsx  # Lịch sử cập nhật điểm
-│   │   │   └── blockchain/
-│   │   │       ├── page.tsx     # Thông tin blockchain (hash, txs)
-│   │   │       └── verify.tsx   # Kiểm chứng giao dịch
-│   │   │
-│   │   ├── student/
-│   │   │   ├── page.tsx         # Trang sinh viên xem điểm
-│   │   │   └── history.tsx      # Lịch sử điểm on-chain
+│   ├── src/app/
+│   │
+│   ├── layout.tsx                # Root layout chung
+│   ├── login/page.tsx            # Login MetaMask
+│   │
+│   ├── (admin)/                  # Layout dành riêng cho Admin
+│   │   ├── layout.tsx            # Sidebar + Header cho Admin
+│   │   └── dashboard/
+│   │       ├── page.tsx
+│   │       ├── teachers/
+│   │       ├── students/
+│   │       ├── subjects/
+│   │       └── grades/
+│   │
+│   ├── (teacher)/                # Layout dành riêng cho Giáo viên
+│   │   ├── layout.tsx
+│   │   └── dashboard/
+│   │       ├── page.tsx
+│   │       ├── students/
+│   │       ├── subjects/
+│   │       └── grades/
+│   │
+│   ├── (student)/                # Layout dành riêng cho Sinh viên
+│   │   ├── layout.tsx
+│   │   └── dashboard/
+│   │       ├── page.tsx
+│   │       └── history/page.tsx
+│    
+│    
 │   │   │
 │   │   └── not-found.tsx        # Trang 404
 │   │
