@@ -1,7 +1,7 @@
 import React from "react";
 
-const page = () => {
-  return <div>page</div>;
+const Dashboard = () => {
+  return <div>Trang quản lý</div>;
 };
 
-export default page;
+export default Dashboard;
