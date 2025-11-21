@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Teacher {
   id: number;
@@ -23,6 +23,7 @@ const initialTeachers: Teacher[] = Array.from({ length: 37 }, (_, i) => ({
 const PAGE_SIZE = 10;
 
 export default function TeachersPage() {
+  const router = useRouter();
   const [teachers, setTeachers] = useState<Teacher[]>(initialTeachers);
   const [currentPage, setCurrentPage] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
@@ -145,7 +146,12 @@ export default function TeachersPage() {
               <tr key={teacher.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">{teacher.id}</td>
                 <td className="px-6 py-4 text-blue-600 hover:underline">
-                  <Link href={`/admin/teachers/${teacher.id}`}>{teacher.name}</Link>
+                  <button
+                    onClick={() => router.push(`/admin/teachers/${teacher.id}`)}
+                    className="bg-none border-none text-blue-600 cursor-pointer hover:underline"
+                  >
+                    {teacher.name}
+                  </button>
                 </td>
                 <td className="px-6 py-4">{teacher.email}</td>
                 <td className="px-6 py-4">{teacher.subject}</td>
