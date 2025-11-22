@@ -56,35 +56,29 @@ const LoginPage = () => {
         });
 
         const walletAddress = accounts[0];
+        console.log(walletAddress);
 
         // 4. Gửi ví lên backend để xác minh
-        const verifyRes = await axios.post(
-          "http://localhost:8080/api/auth/verify-wallet",
-          { walletAddress },
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
+        const verifyRes = await AuthServices.verifyWallet(
+          accessToken,
+          walletAddress
         );
 
-        // ⭐ Fix verify result — không có verifyRes.data.ok
+        console.log(verifyRes);
+
+        // Fix verify result — không có verifyRes.data.ok
         if (
-          verifyRes.data.message === "Wallet linked successfully" ||
-          verifyRes.data.message === "Wallet verified"
+          verifyRes.message === "Wallet linked successfully" ||
+          verifyRes.message === "Wallet verified"
         ) {
-          router.push("/teacher");
+          router.push("/teacher/dashboard");
         } else {
           alert("Ví không khớp! Không thể đăng nhập.");
           localStorage.removeItem("accessToken");
         }
       }
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        alert(err.response?.data || "Lỗi đăng nhập Axios");
-      } else if (err instanceof Error) {
-        alert(err.message);
-      } else {
-        alert("Lỗi không xác định");
-      }
+      alert(err.response?.data || "Lỗi đăng nhập!");
     }
 
     setLoading(false);

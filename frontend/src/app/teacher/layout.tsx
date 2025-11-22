@@ -1,5 +1,5 @@
+import HeaderComponent from "@/components/teacher/HeaderComponent/HeaderComponent";
 import SidebarComponent from "@/components/teacher/SidebarComponent/SidebarComponent";
-import ReduxProvider from "@/providers/redux-provider";
 
 export default function TeacherLayout({
   children,
@@ -7,15 +7,12 @@ export default function TeacherLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
-        <div className="flex">
-          <SidebarComponent />
-          <div className="flex-1">
-            <ReduxProvider>{children}</ReduxProvider>
-          </div>
-        </div>
-      </body>
-    </html>
+    <div className="flex">
+      <SidebarComponent />
+      <div className="flex-1">
+        <HeaderComponent />
+        {children}
+      </div>
+    </div>
   );
 }

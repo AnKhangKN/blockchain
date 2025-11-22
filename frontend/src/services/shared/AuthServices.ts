@@ -64,3 +64,17 @@ export const verifyWallet = async (accessToken: string, walletAddress: string) =
         throw err;
     }
 };
+
+export const UserDetail = async (accessToken: string) => {
+    try {
+        const res = await axios.get(`${API}/shared/user-details`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return res.data;
+    } catch (err) {
+        console.log("Get user detail error:", err);
+        throw err;
+    }
+};
