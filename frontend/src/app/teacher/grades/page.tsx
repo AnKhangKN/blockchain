@@ -3,30 +3,24 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-const dummyGrades = [
+const teacherSubjects = [
   {
     id: 1,
-    student: "Nguyễn Văn A",
     subject: "Lập trình Web",
-    mid: 7.5,
-    final: 8.0,
-    total: 7.8,
+    credits: 3,
+    status: "Đang diễn ra",
   },
   {
     id: 2,
-    student: "Trần Thị B",
     subject: "Cơ sở dữ liệu",
-    mid: 6.5,
-    final: 7.0,
-    total: 6.8,
+    credits: 4,
+    status: "Đã kết thúc",
   },
   {
     id: 3,
-    student: "Phạm Văn C",
     subject: "Mạng máy tính",
-    mid: 8.0,
-    final: 8.5,
-    total: 8.3,
+    credits: 3,
+    status: "Đang diễn ra",
   },
 ];
 
@@ -35,49 +29,49 @@ export default function Grades() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
+
+      {/* Header – Đã bỏ nút nhập điểm */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý điểm</h1>
-
-        <button
-          onClick={() => router.push("/teacher/grades/new")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow transition font-medium"
-        >
-          + Nhập điểm mới
-        </button>
       </div>
 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-md border p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-700">
-          Danh sách điểm sinh viên
+          Danh sách môn học đang phụ trách
         </h2>
 
         <div className="overflow-x-auto">
           <table className="w-full border rounded-xl overflow-hidden">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
-                <th className="p-3 text-left">Sinh viên</th>
                 <th className="p-3 text-left">Môn học</th>
-                <th className="p-3 text-center">Giữa kỳ</th>
-                <th className="p-3 text-center">Cuối kỳ</th>
-                <th className="p-3 text-center">Tổng kết</th>
+                <th className="p-3 text-center">Số tín chỉ</th>
+                <th className="p-3 text-center">Trạng thái</th>
               </tr>
             </thead>
 
             <tbody>
-              {dummyGrades.map((g) => (
+              {teacherSubjects.map((item) => (
                 <tr
-                  key={g.id}
-                  onClick={() => router.push(`/teacher/grades/${g.id}`)}
+                  key={item.id}
+                  onClick={() =>
+                    router.push(`/teacher/grades/subject/${item.id}`)
+                  }
                   className="border-t hover:bg-gray-50 transition cursor-pointer"
                 >
-                  <td className="p-3">{g.student}</td>
-                  <td className="p-3">{g.subject}</td>
-                  <td className="p-3 text-center">{g.mid}</td>
-                  <td className="p-3 text-center">{g.final}</td>
-                  <td className="p-3 text-center font-semibold text-blue-600">
-                    {g.total}
+                  <td className="p-3">{item.subject}</td>
+
+                  <td className="p-3 text-center">{item.credits}</td>
+
+                  <td
+                    className={`p-3 text-center font-medium ${
+                      item.status === "Đang diễn ra"
+                        ? "text-green-600"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {item.status}
                   </td>
                 </tr>
               ))}
@@ -85,6 +79,7 @@ export default function Grades() {
           </table>
         </div>
       </div>
+
     </div>
   );
 }

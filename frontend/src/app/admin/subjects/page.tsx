@@ -14,16 +14,14 @@ interface Subject {
 }
 
 const SubjectsPage = () => {
-  const [subjects, setSubjects] = useState<Subject[]>([]); // khởi tạo rỗng
+  const [subjects, setSubjects] = useState<Subject[]>([]);
 
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
         const accessToken = await ValidateToken.getValidAccessToken();
-
         const res = await SubjectServices.getSubjects(accessToken);
 
-        // Lọc những môn đang active (nếu muốn)
         const activeSubjects = res.data.filter(
           (s: Subject) => s.status === "active"
         );
@@ -42,12 +40,6 @@ const SubjectsPage = () => {
     if (!ok) return;
 
     try {
-      // const accessToken = await ValidateToken.getValidAccessToken();
-
-      // Gọi API xóa môn học (cập nhật status = inactive)
-      // await SubjectServices.deleteSubject(accessToken, id);
-
-      // Cập nhật state
       setSubjects((prev) => prev.filter((s) => s._id !== id));
     } catch (error) {
       console.log("Lỗi khi xóa môn học:", error);
@@ -57,6 +49,7 @@ const SubjectsPage = () => {
   return (
     <div className="p-6 flex justify-center">
       <div className="bg-white p-6 rounded-2xl shadow-lg border w-full max-w-5xl">
+        
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">
@@ -79,7 +72,6 @@ const SubjectsPage = () => {
                 <th className="p-3 border">#</th>
                 <th className="p-3 border">Tên môn</th>
                 <th className="p-3 border">Mã môn</th>
-                <th className="p-3 border">Tín chỉ</th>
                 <th className="p-3 border text-center">Hành động</th>
               </tr>
             </thead>
@@ -93,7 +85,7 @@ const SubjectsPage = () => {
                   <td className="p-3 border">{index + 1}</td>
                   <td className="p-3 border">{s.name}</td>
                   <td className="p-3 border">{s.code}</td>
-                  <td className="p-3 border">{s.credit}</td>
+
                   <td className="p-3 border text-center space-x-2">
                     <Link
                       href={`/admin/subjects/edit/${s._id}`}
@@ -114,7 +106,7 @@ const SubjectsPage = () => {
 
               {subjects.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-4 text-gray-500 text-center">
+                  <td colSpan={4} className="p-4 text-gray-500 text-center">
                     Không có môn học nào.
                   </td>
                 </tr>
@@ -122,6 +114,7 @@ const SubjectsPage = () => {
             </tbody>
           </table>
         </div>
+
       </div>
     </div>
   );
