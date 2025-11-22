@@ -2,20 +2,94 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ethers } from "ethers";
+import ScoreManagerABI from "@/blockchain/artifacts/contracts/ScoreManager.sol/ScoreManager.json";
+
+interface Student {
+  _id: string;
+  email: string;
+}
+
+interface Subject {
+  _id: string;
+  name: string;
+}
+
+interface Teacher {
+  _id: string;
+  email: string;
+  subjects: Subject[];
+}
+
+/* ---------------- MOCK DATA ---------------- */
+
+const mockStudents: Student[] = [
+  { _id: "1", email: "student1@example.com" },
+  { _id: "2", email: "student2@example.com" },
+];
+
+const mockTeachers: Teacher[] = [
+  {
+    _id: "t1",
+    email: "teacher1@example.com",
+    subjects: [
+      { _id: "sub1", name: "Math" },
+      { _id: "sub2", name: "Physics" },
+    ],
+  },
+];
+
+/* ---- Contract trên testnet đã deploy ---- */
+const CONTRACT_ADDRESS = "0xE7DB30Bb2dCAFb1b7cA9afa0618b8156f7575AeA";
+
+/* ---------------- COMPONENT ---------------- */
 
 export default function AddGradePage() {
   const router = useRouter();
+  const students = mockStudents;
+  const teachers = mockTeachers;
 
   const [form, setForm] = useState({
-    studentName: "",
-    subject: "",
-    mid: "",
-    finalScore: "",
+    studentId: "",
+    teacherId: "",
+    subjectId: "",
+    score: "",
   });
 
-  const handleSave = () => {
-    alert("Đã thêm điểm mới! (demo)");
-    router.push("/teacher/grades");
+  /* ---- Gửi điểm lên Smart Contract ---- */
+  const handleSave = async () => {
+    if (!window.ethereum) return alert("Bạn cần cài MetaMask!");
+
+    const { studentId, subjectId, score } = form;
+    if (!studentId || !subjectId || !score)
+      return alert("Điền đầy đủ thông tin!");
+
+    try {
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum as any
+      );
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+
+      const contract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        ScoreManagerABI.abi,
+        signer
+      );
+
+      const tx = await contract.setScore(
+        studentId, // string
+        subjectId, // string
+        Number(score) // uint256
+      );
+
+      await tx.wait();
+
+      alert("Thêm điểm thành công!\nTx Hash: " + tx.hash);
+    } catch (err) {
+      console.error(err);
+      alert("Gặp lỗi khi lưu điểm lên blockchain!");
+    }
   };
 
   return (
@@ -23,75 +97,88 @@ export default function AddGradePage() {
       <h1 className="text-3xl font-bold text-center mb-6">Thêm điểm mới</h1>
 
       <div className="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-md space-y-5">
-
-        {/* Tên sinh viên */}
+        {/* Chọn sinh viên */}
         <div>
-          <label className="font-medium">Tên sinh viên</label>
-          <input
-            className="w-full border p-2 rounded mt-1 focus:ring-2 focus:ring-blue-400 outline-none"
-            placeholder="Nhập tên sinh viên…"
-            value={form.studentName}
-            onChange={(e) =>
-              setForm({ ...form, studentName: e.target.value })
-            }
-          />
-        </div>
-
-        {/* Môn học — Tự nhập */}
-        <div>
-          <label className="font-medium">Môn học</label>
-          <input
-            className="w-full border p-2 rounded mt-1 focus:ring-2 focus:ring-blue-400 outline-none"
-            placeholder="Nhập môn học…"
-            value={form.subject}
-            onChange={(e) =>
-              setForm({ ...form, subject: e.target.value })
-            }
-          />
-        </div>
-
-        {/* Điểm giữa kỳ */}
-        <div>
-          <label className="font-medium">Điểm giữa kỳ</label>
-          <input
+          <label className="font-medium">Sinh viên</label>
+          <select
             className="w-full border p-2 rounded mt-1"
-            placeholder="Nhập điểm giữa kỳ…"
-            value={form.mid}
-            onChange={(e) =>
-              setForm({ ...form, mid: e.target.value })
-            }
-          />
+            value={form.studentId}
+            onChange={(e) => setForm({ ...form, studentId: e.target.value })}
+          >
+            <option value="">Chọn sinh viên…</option>
+            {students.map((s) => (
+              <option key={s._id} value={s._id}>
+                {s.email}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Điểm cuối kỳ */}
+        {/* Chọn giảng viên */}
         <div>
-          <label className="font-medium">Điểm cuối kỳ</label>
-          <input
+          <label className="font-medium">Giảng viên</label>
+          <select
             className="w-full border p-2 rounded mt-1"
-            placeholder="Nhập điểm cuối kỳ…"
-            value={form.finalScore}
+            value={form.teacherId}
             onChange={(e) =>
-              setForm({ ...form, finalScore: e.target.value })
+              setForm({ ...form, teacherId: e.target.value, subjectId: "" })
             }
+          >
+            <option value="">Chọn giảng viên…</option>
+            {teachers.map((t) => (
+              <option key={t._id} value={t._id}>
+                {t.email}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Chọn môn học */}
+        {form.teacherId && (
+          <div>
+            <label className="font-medium">Môn học</label>
+            <select
+              className="w-full border p-2 rounded mt-1"
+              value={form.subjectId}
+              onChange={(e) => setForm({ ...form, subjectId: e.target.value })}
+            >
+              <option value="">Chọn môn học…</option>
+              {teachers
+                .find((t) => t._id === form.teacherId)
+                ?.subjects.map((sub) => (
+                  <option key={sub._id} value={sub._id}>
+                    {sub.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+        )}
+
+        {/* Nhập điểm */}
+        <div>
+          <label className="font-medium">Điểm</label>
+          <input
+            type="number"
+            className="w-full border p-2 rounded mt-1"
+            placeholder="Nhập điểm…"
+            value={form.score}
+            onChange={(e) => setForm({ ...form, score: e.target.value })}
           />
         </div>
 
-        {/* Save */}
         <button
           onClick={handleSave}
-          className="w-full mt-2 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition font-medium"
+          className="w-full mt-2 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
           + Thêm điểm
         </button>
 
-        {/* Back */}
         <button
           onClick={() => router.back()}
-          className="w-full py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 shadow-md transition"
+          className="w-full py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
         >
           ← Quay lại
         </button>
-
       </div>
     </main>
   );

@@ -8,6 +8,20 @@ route.get("/subjects", verifyToken, isAdmin, SubjectControllers.getSubjects);
 
 route.post("/subjects", verifyToken, isAdmin, SubjectControllers.addNewSubject);
 
+route.post(
+  "/subjects/teachers",
+  verifyToken,
+  isAdmin,
+  SubjectControllers.addTeacherSubject
+);
+
+route.post(
+  "/subjects/students",
+  verifyToken,
+  isAdmin,
+  SubjectControllers.addStudentSubject
+);
+
 route.delete(
   "/subjects/:subjectId",
   verifyToken,

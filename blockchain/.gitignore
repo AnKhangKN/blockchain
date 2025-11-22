@@ -1,20 +1,35 @@
-# Node modules
-/node_modules
+# Node.js dependencies
+node_modules/
+package-lock.json
+yarn.lock
 
-# Compilation output
-/dist
+# Hardhat artifacts
+artifacts/
+cache/
+typechain/
 
-# pnpm deploy output
-/bundle
+# Hardhat deploy scripts log
+*.log
 
-# Hardhat Build Artifacts
-/artifacts
+# Environment variables
+.env
+.env.local
+.env.*.local
 
-# Hardhat compilation (v2) support directory
-/cache
+# VSCode
+.vscode/
 
-# Typechain output
-/types
+# MacOS
+.DS_Store
 
-# Hardhat coverage reports
-/coverage
+# Next.js
+.next/
+out/
+
+# Optional: MongoDB local data folder (nếu dùng)
+data/
+
+# Optional: npm debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

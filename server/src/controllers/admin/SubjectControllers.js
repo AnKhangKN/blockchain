@@ -21,6 +21,35 @@ const addNewSubject = async (req, res, next) => {
   }
 };
 
+const addTeacherSubject = async (req, res, next) => {
+  try {
+    const { teacherId, subjectId } = req.body;
+
+    const result = await SubjectServices.addTeacherSubject(
+      teacherId,
+      subjectId
+    );
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const addStudentSubject = async (req, res, next) => {
+  try {
+    const { studentId, subjectId } = req.body;
+
+    const result = await SubjectServices.addStudentSubject(
+      studentId,
+      subjectId
+    );
+
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const deleteSubject = async (req, res, next) => {
   try {
     const { subjectId } = req.params;
@@ -35,5 +64,7 @@ const deleteSubject = async (req, res, next) => {
 module.exports = {
   getSubjects,
   addNewSubject,
+  addTeacherSubject,
+  addStudentSubject,
   deleteSubject,
 };
