@@ -2,9 +2,14 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store"; // import RootState từ store của bạn
 
 const HeaderComponent = () => {
   const pathname = usePathname();
+
+  // Lấy user từ Redux store
+  const user = useSelector((state: RootState) => state.user);
 
   const pathNavigate = [
     { name: "Dashboard", link: "/teacher/dashboard" },
@@ -25,7 +30,7 @@ const HeaderComponent = () => {
 
       <div className="flex items-center gap-2">
         <div className="bg-gray-200 rounded-full w-8 h-8"></div>
-        <div>admin@gmail.com</div>
+        <div>{user?.email || "No email"}</div>
       </div>
     </div>
   );

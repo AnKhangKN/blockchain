@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import * as AuthServices from "../../services/shared/AuthServices";
 import { MetaMaskInpageProvider } from "@metamask/providers";
-
+import { connectUser, disconnectUser } from "@/store/slices/userSlice";
+import { useDispatch } from "react-redux";
 declare global {
   interface Window {
     ethereum?: MetaMaskInpageProvider;
@@ -26,6 +26,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +37,10 @@ const LoginPage = () => {
 
       // Sửa ở đây — login trả về accessToken, không phải token
       const { accessToken, isAdmin, isTeacher, needWallet } = res;
+
+      localStorage.setItem("accessToken", accessToken);
+
+      console.log(accessToken);
 
       // Nếu không cần ví → chuyển trang luôn
       if (!needWallet) {
@@ -56,13 +61,14 @@ const LoginPage = () => {
         });
 
         const walletAddress = accounts[0];
-        console.log(walletAddress);
 
         // 4. Gửi ví lên backend để xác minh
         const verifyRes = await AuthServices.verifyWallet(
           accessToken,
           walletAddress
         );
+
+        await handleGetDetailUser(accessToken);
 
         console.log(verifyRes);
 
@@ -82,6 +88,21 @@ const LoginPage = () => {
     }
 
     setLoading(false);
+  };
+
+  const handleGetDetailUser = async (accessToken: string) => {
+    try {
+      const res = await AuthServices.UserDetail(accessToken);
+      const user = res;
+
+      if (!user) throw new Error("Không tìm thấy thông tin người dùng!");
+
+      dispatch(connectUser(res));
+      return user;
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin người dùng:", error);
+      throw error;
+    }
   };
 
   return (
