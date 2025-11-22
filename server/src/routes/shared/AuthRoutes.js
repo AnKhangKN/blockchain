@@ -1,14 +1,20 @@
 const express = require("express");
-const router = express.Router();
+const route = express.Router();
 const {
   registerController,
   loginController,
+  handleRefreshToken,
 } = require("../../controllers/shared/AuthControllers");
+const { verifyToken } = require("../../middlewares/auth.middleware");
 
 // POST /auth/register
-router.post("/register", registerController);
+route.post("/register", registerController);
 
 // POST /auth/login
-router.post("/login", loginController);
+route.post("/login", loginController);
 
-module.exports = router;
+route.post("/token/refresh", handleRefreshToken);
+
+route.post("/verify-wallet", verifyToken);
+
+module.exports = route;

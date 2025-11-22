@@ -1,18 +1,25 @@
 const throwError = require("../utils/throwError");
 
-// 🧩 Kiểm tra quyền Admin
+// Kiểm tra quyền Admin
 const isAdmin = (req, res, next) => {
-  if (req.user?.isAdmin) return next();
+  if (req.user?.isAdmin && !req.user?.isTeacher) return next();
   return next(throwError("Người dùng không phải Admin!", 403));
 };
 
-// 🧍‍♂️ Kiểm tra quyền User (người dùng thông thường)
+// Kiểm tra quyền Teacher
+const isTeacher = (req, res, next) => {
+  if (!req.user?.isAdmin && req.user?.isTeacher) return next();
+  return next(throwError("Người dùng không phải Admin!", 403));
+};
+
+// Kiểm tra quyền User (người dùng thông thường)
 const isUser = (req, res, next) => {
-  if (!req.user?.isAdmin) return next();
+  if (!req.user?.isAdmin && !req.user?.isTeacher) return next();
   return next(throwError("Không phải người dùng!", 403));
 };
 
 module.exports = {
   isAdmin,
+  isTeacher,
   isUser,
 };

@@ -1,15 +1,14 @@
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
-// ================= User Schema =================
 const userSchema = new Schema({
-  fullName: { type: String, required: true },
+  fullName: { type: String },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true }, // hash trước khi lưu
   subjects: [{ type: Schema.Types.ObjectId, ref: "Subject" }],
   isAdmin: { type: Boolean, default: false, required: true },
   isTeacher: { type: Boolean, default: false, required: true },
-  walletAddress: { type: String, required: false },
+  walletAddress: { type: String }, // chỉ lưu khi teacher connect MetaMask
   status: {
     type: String,
     enum: ["active", "inactive"],
@@ -19,6 +18,5 @@ const userSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// ================= Export Model =================
 const User = model("User", userSchema);
 module.exports = User;

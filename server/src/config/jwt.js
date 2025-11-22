@@ -21,6 +21,7 @@ const handleRefreshToken = async (refreshToken) => {
     const accessToken = generateAccessToken({
       id: user.id,
       isAdmin: user.isAdmin,
+      isTeacher: user.isTeacher,
     });
 
     return {

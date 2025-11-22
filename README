@@ -184,3 +184,5 @@ Ví này sẽ dùng để call smart contract thêm grade hoặc đọc grade.
 Sử dụng blockchain
 Khi Teacher thêm điểm → backend kiểm tra role JWT → call smart contract từ Teacher wallet hoặc backend wallet.
 Student muốn xem điểm → backend đọc từ blockchain dựa trên address ví đã liên kết.
+
+khang@12345

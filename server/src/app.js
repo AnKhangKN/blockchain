@@ -10,7 +10,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: FRONT_END_ORIGIN, // frontend Vite
+    origin: FRONT_END_ORIGIN,
     credentials: true,
   })
 );

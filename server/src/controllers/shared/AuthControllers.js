@@ -1,23 +1,15 @@
 const AuthServices = require("../../services/shared/AuthServices");
+const jwtServices = require("../../config/jwt");
 
 const registerController = async (req, res, next) => {
   try {
-    const { fullName, email, password, walletAddress } = req.body;
+    const { email, password } = req.body;
 
-    const name =
-      (fullName && fullName.trim()) ||
-      `${(firstName || "").trim()} ${(lastName || "").trim()}`.trim();
-
-    if (!name || !email || !password) {
+    if (!email || !password) {
       return res.status(400).json({ message: "Thiếu thông tin đăng ký" });
     }
 
-    const result = await AuthServices.register(
-      name,
-      email,
-      password,
-      walletAddress
-    );
+    const result = await AuthServices.register(email, password);
     return res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -26,27 +18,36 @@ const registerController = async (req, res, next) => {
 
 const loginController = async (req, res, next) => {
   try {
-    const { email, password, walletAddress = null, platform } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password)
       return res.status(400).json({ message: "Thiếu thông tin đăng nhập" });
 
-    const result = await AuthServices.login(email, password, walletAddress);
+    const result = await AuthServices.login(email, password);
     const { refreshToken, ...payload } = result;
 
-    if (platform === "web") {
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: false, // Đổi thành true khi deploy với HTTPS
-        sameSite: "strict",
-        maxAge: 365 * 24 * 60 * 60 * 1000,
-        path: "/",
-      });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false, // Đổi thành true khi deploy với HTTPS
+      sameSite: "strict",
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+      path: "/",
+    });
 
-      return res.status(200).json(payload);
-    }
+    return res.status(200).json(payload);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    return res.status(200).json({ ...payload, refreshToken });
+const handleRefreshToken = async (req, res, next) => {
+  try {
+    const token = req.cookies.refreshToken;
+
+    if (!token) throwError("Người dùng chưa đăng nhập!", 401);
+
+    const result = await jwtServices.handleRefreshToken(token);
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -55,4 +56,5 @@ const loginController = async (req, res, next) => {
 module.exports = {
   registerController,
   loginController,
+  handleRefreshToken,
 };

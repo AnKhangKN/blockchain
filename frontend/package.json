@@ -10,12 +10,16 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.10.1",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "jwt-decode": "^4.0.0",
     "next": "16.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
+    "@metamask/providers": "^22.1.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
