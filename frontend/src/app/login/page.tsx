@@ -45,7 +45,7 @@ const LoginPage = () => {
       // Nếu không cần ví → chuyển trang luôn
       if (!needWallet) {
         if (isAdmin) router.push("/admin/dashboard");
-        else if (!isAdmin && !isTeacher) router.push("/student");
+        else if (!isAdmin && !isTeacher) router.push("/student/dashboard");
       }
 
       // Nếu cần ví (giảng viên)

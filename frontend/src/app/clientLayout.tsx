@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { useRouter, usePathname } from "next/navigation";
 import * as TokenUtils from "@/utils/token.utils";
 import * as AuthServices from "@/services/shared/AuthServices";
-import { connectUser, disconnectUser } from "@/store/slices/userSlice";
+import { connectUser } from "@/store/slices/userSlice";
 import LoadingComponent from "@/components/LoadingComponent/LoadingComponent";
 
 interface ClientLayoutProps {
@@ -37,11 +37,11 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
           // redirect lần đầu
           if (pathname === "/") {
             if (res.isAdmin) {
-              router.push("/admin");
+              router.push("/admin/dashboard");
             } else if (res.isTeacher) {
               router.push("/teacher/dashboard");
             } else {
-              router.push("/students");
+              router.push("/student/dashboard");
             }
           }
         } else {

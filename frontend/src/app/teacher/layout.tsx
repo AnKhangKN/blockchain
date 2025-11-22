@@ -1,5 +1,6 @@
 import HeaderComponent from "@/components/teacher/HeaderComponent/HeaderComponent";
 import SidebarComponent from "@/components/teacher/SidebarComponent/SidebarComponent";
+import ProtectedRoute from "../ProtectedRoute";
 
 export default function TeacherLayout({
   children,
@@ -7,12 +8,14 @@ export default function TeacherLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex">
-      <SidebarComponent />
-      <div className="flex-1">
-        <HeaderComponent />
-        {children}
+    <ProtectedRoute role="teacher">
+      <div className="flex">
+        <SidebarComponent />
+        <div className="flex-1">
+          <HeaderComponent />
+          {children}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
