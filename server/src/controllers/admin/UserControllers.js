@@ -9,6 +9,17 @@ const getUsers = async (req, res, next) => {
   }
 };
 
+const getUserDetail = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    const result = await UserServices.getUserDetail(userId);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const updateUserRole = async (req, res, next) => {
   try {
     const { userId, isTeacher } = req.body;
@@ -33,6 +44,7 @@ const deleteUser = async (req, res, next) => {
 
 module.exports = {
   getUsers,
+  getUserDetail,
   updateUserRole,
   deleteUser,
 };

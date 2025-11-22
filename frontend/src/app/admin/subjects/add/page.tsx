@@ -2,21 +2,28 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import * as ValidateToken from "@/utils/token.utils";
+import * as SubjectServices from "@/services/admin/SubjectServices";
 
 const AddSubjectPage = () => {
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
-  const [credit, setCredit] = useState(3);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Môn học mới:", { name, code, credit });
+    try {
+      const accessToken = await ValidateToken.getValidAccessToken();
 
-    alert("Thêm môn học thành công!");
-    router.push("/admin/subjects");
+      await SubjectServices.addNewSubject(accessToken, name, code);
+
+      alert("Thêm môn học thành công!");
+      router.push("/admin/subjects");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -42,19 +49,6 @@ const AddSubjectPage = () => {
             className="w-full px-3 py-2 border rounded"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label className="font-medium">Số tín chỉ</label>
-          <input
-            type="number"
-            min={1}
-            max={5}
-            className="w-full px-3 py-2 border rounded"
-            value={credit}
-            onChange={(e) => setCredit(Number(e.target.value))}
             required
           />
         </div>
