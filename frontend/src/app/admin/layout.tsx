@@ -7,9 +7,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="h-screen">
-        <ReduxProvider>
+    
           <div className="flex h-screen">
             {/* Sidebar */}
             <SidebarComponent />
@@ -19,8 +17,7 @@ export default function AdminLayout({
               {children}
             </main>
           </div>
-        </ReduxProvider>
-      </body>
-    </html>
+       
+      
   );
 }
