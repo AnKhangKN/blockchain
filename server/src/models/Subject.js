@@ -11,6 +11,8 @@ const subjectSchema = new Schema({
     enum: ["active", "inactive"],
     default: "active",
   },
+  teachers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  students: [{ type: Schema.Types.ObjectId, ref: "User" }],
 });
 
 // ================= Export Model =================
