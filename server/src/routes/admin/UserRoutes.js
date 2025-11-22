@@ -6,6 +6,13 @@ const route = express.Router();
 
 route.get("/users", verifyToken, isAdmin, UserControllers.getUsers);
 
+route.get(
+  "/users/:userId",
+  verifyToken,
+  isAdmin,
+  UserControllers.getUserDetail
+);
+
 route.put(
   "/update-user-role",
   verifyToken,

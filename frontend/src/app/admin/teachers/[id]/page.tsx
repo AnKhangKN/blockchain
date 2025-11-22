@@ -1,69 +1,94 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import * as ValidateToken from "@/utils/token.utils";
+import * as UserServices from "@/services/admin/UserServices";
 
 interface Teacher {
-  id: number;
-  name: string;
+  _id: string;
   email: string;
-  subject: string;
-  active: boolean;
+  isTeacher: boolean;
+  isAdmin: boolean;
+  status: string;
+  subjects: string[];
+  createdAt: string;
 }
-
-// Dữ liệu demo
-const teachersData: Teacher[] = Array.from({ length: 37 }, (_, i) => ({
-  id: i + 1,
-  name: `Giảng viên ${i + 1}`,
-  email: `teacher${i + 1}@school.edu`,
-  subject: ["Toán", "Lý", "Hóa", "Văn"][i % 4],
-  active: true,
-}));
 
 export default function TeacherDetailPage() {
   const params = useParams();
   const router = useRouter();
 
-  const teacherId = Number(params.id);
-  const teacherObj = teachersData.find((t) => t.id === teacherId);
-
-  const [teacher, setTeacher] = useState<Teacher | null>(teacherObj || null);
+  const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Lấy dữ liệu chi tiết
+  useEffect(() => {
+    const fetchTeacher = async () => {
+      try {
+        const accessToken = await ValidateToken.getValidAccessToken();
+        const res = await UserServices.getUserDetail(
+          accessToken,
+          String(params.id)
+        );
+        setTeacher(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchTeacher();
+  }, [params.id]);
 
   if (!teacher)
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-red-600 text-xl font-semibold">Không tìm thấy giảng viên.</p>
+        <p className="text-red-600 text-xl font-semibold">
+          Không tìm thấy giảng viên.
+        </p>
       </div>
     );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setTeacher(prev => prev ? { ...prev, [name]: name === "active" ? value === "true" : value } : prev);
+    setTeacher((prev) =>
+      prev
+        ? {
+            ...prev,
+            [name]:
+              name === "active" || name === "status" ? value === "true" : value,
+          }
+        : prev
+    );
   };
 
-  const handleSave = () => {
-    // Gọi API để lưu thay đổi nếu có
-    console.log("Saved teacher:", teacher);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      // TODO: Gọi API để update teacher
+      console.log("Saved teacher:", teacher);
+      setIsEditing(false);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
     <main className="p-6 min-h-screen bg-gray-50 flex flex-col items-center relative">
       <div className="bg-white shadow-2xl rounded-2xl w-full max-w-3xl p-10 flex flex-col gap-6">
-        {/* Header với tên và nút Sửa/Hủy */}
+        {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold text-gray-800 flex-1">
             {isEditing ? (
               <input
                 type="text"
-                name="name"
-                value={teacher.name}
+                name="email"
+                value={teacher.email.split("@")[0]}
                 onChange={handleChange}
                 className="px-3 py-2 border rounded-lg text-2xl font-bold w-full"
               />
             ) : (
-              teacher.name
+              teacher.email.split("@")[0]
             )}
           </h1>
           <button
@@ -74,11 +99,11 @@ export default function TeacherDetailPage() {
           </button>
         </div>
 
-        {/* Thông tin giảng viên */}
+        {/* Thông tin chi tiết */}
         <div className="flex flex-col gap-4 text-gray-700 text-lg">
           <div className="flex justify-between">
             <span className="font-semibold">ID:</span>
-            <span>{teacher.id}</span>
+            <span>{teacher._id}</span>
           </div>
 
           <div className="flex justify-between">
@@ -100,9 +125,13 @@ export default function TeacherDetailPage() {
             <span className="font-semibold">Môn học:</span>
             {isEditing ? (
               <select
-                name="subject"
-                value={teacher.subject}
-                onChange={handleChange}
+                name="subjects"
+                value={teacher.subjects[0] || ""}
+                onChange={(e) =>
+                  setTeacher((prev) =>
+                    prev ? { ...prev, subjects: [e.target.value] } : prev
+                  )
+                }
                 className="px-3 py-2 border rounded-lg w-full"
               >
                 <option value="Toán">Toán</option>
@@ -111,7 +140,7 @@ export default function TeacherDetailPage() {
                 <option value="Văn">Văn</option>
               </select>
             ) : (
-              <span>{teacher.subject}</span>
+              <span>{teacher.subjects.join(", ") || "Chưa có môn"}</span>
             )}
           </div>
 
@@ -119,8 +148,8 @@ export default function TeacherDetailPage() {
             <span className="font-semibold">Trạng thái:</span>
             {isEditing ? (
               <select
-                name="active"
-                value={teacher.active.toString()}
+                name="status"
+                value={teacher.status === "active" ? "true" : "false"}
                 onChange={handleChange}
                 className="px-3 py-2 border rounded-lg w-full"
               >
@@ -130,16 +159,18 @@ export default function TeacherDetailPage() {
             ) : (
               <span
                 className={`px-4 py-2 rounded-full text-white text-base font-semibold ${
-                  teacher.active ? "bg-green-600" : "bg-red-600"
+                  teacher.status === "active" ? "bg-green-600" : "bg-red-600"
                 }`}
               >
-                {teacher.active ? "Hoạt động" : "Không còn hoạt động"}
+                {teacher.status === "active"
+                  ? "Hoạt động"
+                  : "Không còn hoạt động"}
               </span>
             )}
           </div>
         </div>
 
-        {/* Nút Lưu khi đang chỉnh sửa */}
+        {/* Nút Lưu */}
         {isEditing && (
           <div className="flex gap-6 mt-6">
             <button
@@ -151,7 +182,7 @@ export default function TeacherDetailPage() {
           </div>
         )}
 
-        {/* Nút Quay lại danh sách */}
+        {/* Quay lại danh sách */}
         <button
           onClick={() => router.push("/admin/teachers")}
           className="mt-8 self-center px-8 py-3 bg-gray-200 rounded-xl hover:bg-gray-300 transition font-semibold text-lg"

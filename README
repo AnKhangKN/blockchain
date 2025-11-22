@@ -186,3 +186,15 @@ Khi Teacher thêm điểm → backend kiểm tra role JWT → call smart contrac
 Student muốn xem điểm → backend đọc từ blockchain dựa trên address ví đã liên kết.
 
 khang@12345
+
+1 sinh viên học được nhiều môn học
+1 giảng viên dạy được nhiều môn học 
+1 môn học được nhiều giảng viên cùng dạy 
+1 môn học được nhiều sinh viên cùng học 
+
+Admin thêm sinh viên vào môn học, thêm sinh viên mới.
+Admin thêm giảng viên vào môn học, thêm giảng viên mới.
+
+Giảng viên thêm điểm cho sinh viên lên blockchain.
+
+Sinh viên xem điểm thông tin cá nhân.
