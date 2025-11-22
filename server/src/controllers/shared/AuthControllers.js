@@ -53,8 +53,31 @@ const handleRefreshToken = async (req, res, next) => {
   }
 };
 
+const verifyWalletController = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { walletAddress } = req.body;
+    const result = await AuthServices.verifyWallet(userId, walletAddress);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const userDetailsController = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const result = await AuthServices.getUserDetails(userId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerController,
   loginController,
   handleRefreshToken,
+  verifyWalletController,
+  userDetailsController,
 };
