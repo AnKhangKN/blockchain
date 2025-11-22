@@ -1,33 +1,33 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
+  id: string,
   fullName: string;
   email: string;
   walletAddress: string | null;
   isAdmin: boolean;
   isTeacher: boolean;
   isConnected: boolean;
-  lastLogin?: string; // ISO date string, optional
 }
 
 const initialState: UserState = {
+  id: "",
   fullName: "",
   email: "",
   walletAddress: null,
   isAdmin: false,
   isTeacher: false,
   isConnected: false,
-  lastLogin: undefined,
 };
 
 // Payload dùng khi connectUser
 interface UserPayload {
+  _id: string;
   fullName: string;
   email: string;
   walletAddress: string | null;
   isAdmin: boolean;
   isTeacher: boolean;
-  lastLogin?: string;
 }
 
 const userSlice = createSlice({
@@ -35,25 +35,25 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     connectUser: (state, action: PayloadAction<UserPayload>) => {
-      const { fullName, email, walletAddress, isAdmin, isTeacher, lastLogin } = action.payload;
+      const { _id = "", fullName = "", email = "", walletAddress = "", isAdmin = false, isTeacher = false } = action.payload;
 
+      state.id = _id
       state.fullName = fullName;
       state.email = email;
       state.walletAddress = walletAddress;
       state.isAdmin = Boolean(isAdmin);
       state.isTeacher = Boolean(isTeacher);
       state.isConnected = true;
-      state.lastLogin = lastLogin;
     },
 
     disconnectUser: (state) => {
+      state.id = "";
       state.fullName = "";
       state.email = "";
       state.walletAddress = null;
       state.isAdmin = false;
       state.isTeacher = false;
       state.isConnected = false;
-      state.lastLogin = undefined;
     },
 
     // Optional: cập nhật wallet khi giảng viên connect MetaMask sau login

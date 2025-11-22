@@ -24,7 +24,6 @@ export default function TeachersPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Form giảng viên mới
   const [newTeacher, setNewTeacher] = useState({
     name: "",
     email: "",
@@ -32,7 +31,6 @@ export default function TeachersPage() {
     active: true,
   });
 
-  // Lấy danh sách teacher từ API
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -48,12 +46,10 @@ export default function TeachersPage() {
     fetchUser();
   }, []);
 
-  // Pagination
   const totalPages = Math.ceil(teachers.length / PAGE_SIZE);
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const currentTeachers = teachers.slice(startIndex, startIndex + PAGE_SIZE);
 
-  // On change input
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -64,7 +60,6 @@ export default function TeachersPage() {
     }));
   };
 
-  // Thêm mới local demo
   const handleAdd = () => {
     const newData = {
       _id: crypto.randomUUID(),
@@ -89,7 +84,6 @@ export default function TeachersPage() {
 
   return (
     <main className="p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
       <h1 className="text-3xl font-bold mb-6 flex justify-between items-center">
         Danh sách Giảng viên
         <button
@@ -100,10 +94,10 @@ export default function TeachersPage() {
         </button>
       </h1>
 
-      {/* Modal Thêm giảng viên */}
+      {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
             <h2 className="text-xl font-semibold mb-4">Thêm Giảng viên mới</h2>
 
             <input
@@ -124,6 +118,8 @@ export default function TeachersPage() {
               className="px-3 py-2 border rounded w-full mb-3"
             />
 
+            {/* Chỗ này giữ lại subject trong modal (nếu sau này cần dùng), 
+                nhưng KHÔNG HIỂN THỊ ra bảng */}
             <select
               name="subject"
               value={newTeacher.subject}
@@ -149,13 +145,13 @@ export default function TeachersPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={handleAdd}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 Lưu
               </button>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition"
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
               >
                 Hủy
               </button>
@@ -174,7 +170,9 @@ export default function TeachersPage() {
                 Tên Giảng viên
               </th>
               <th className="px-6 py-3 text-left font-medium">Email</th>
-              <th className="px-6 py-3 text-left font-medium">Môn dạy</th>
+
+              {/* 🔥 ĐÃ BỎ CỘT MÔN DẠY */}
+
               <th className="px-6 py-3 text-left font-medium">Trạng thái</th>
             </tr>
           </thead>
@@ -189,7 +187,7 @@ export default function TeachersPage() {
                     onClick={() =>
                       router.push(`/admin/teachers/${teacher._id}`)
                     }
-                    className="bg-none border-none text-blue-600 cursor-pointer hover:underline"
+                    className="text-blue-600 hover:underline cursor-pointer"
                   >
                     {teacher.email.split("@")[0]}
                   </button>
@@ -197,11 +195,7 @@ export default function TeachersPage() {
 
                 <td className="px-6 py-4">{teacher.email}</td>
 
-                <td className="px-6 py-4">
-                  {teacher.subjects.length > 0
-                    ? teacher.subjects.join(", ")
-                    : "Chưa có môn"}
-                </td>
+                {/* ❌ GỠ HOÀN TOÀN MÔN DẠY — KHÔNG HIỂN THỊ */}
 
                 <td className="px-6 py-4">
                   <span

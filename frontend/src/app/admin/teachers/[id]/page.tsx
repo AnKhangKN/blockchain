@@ -22,15 +22,11 @@ export default function TeacherDetailPage() {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Lấy dữ liệu chi tiết
   useEffect(() => {
     const fetchTeacher = async () => {
       try {
         const accessToken = await ValidateToken.getValidAccessToken();
-        const res = await UserServices.getUserDetail(
-          accessToken,
-          String(params.id)
-        );
+        const res = await UserServices.getUserDetail(accessToken, String(params.id));
         setTeacher(res.data);
       } catch (err) {
         console.log(err);
@@ -42,22 +38,25 @@ export default function TeacherDetailPage() {
   if (!teacher)
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-red-600 text-xl font-semibold">
-          Không tìm thấy giảng viên.
-        </p>
+        <p className="text-red-600 text-xl font-semibold">Không tìm thấy giảng viên.</p>
       </div>
     );
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    setTeacher((prev) =>
+      prev ? { ...prev, [name]: name === "active" || name === "status" ? value === "true" : value } : prev
+    );
+  };
+
+  const handleCheckboxSubject = (subject: string, checked: boolean) => {
     setTeacher((prev) =>
       prev
         ? {
             ...prev,
-            [name]:
-              name === "active" || name === "status" ? value === "true" : value,
+            subjects: checked
+              ? [...prev.subjects, subject]
+              : prev.subjects.filter((s) => s !== subject),
           }
         : prev
     );
@@ -65,7 +64,6 @@ export default function TeacherDetailPage() {
 
   const handleSave = async () => {
     try {
-      // TODO: Gọi API để update teacher
       console.log("Saved teacher:", teacher);
       setIsEditing(false);
     } catch (err) {
@@ -73,10 +71,11 @@ export default function TeacherDetailPage() {
     }
   };
 
+  const subjectList = ["Toán", "Lý", "Hóa", "Văn", "Sinh", "Sử", "Địa", "Tin học"]; 
+
   return (
-    <main className="p-6 min-h-screen bg-gray-50 flex flex-col items-center relative">
+    <main className="p-6 min-h-screen bg-gray-50 flex flex-col items-center">
       <div className="bg-white shadow-2xl rounded-2xl w-full max-w-3xl p-10 flex flex-col gap-6">
-        {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-800 flex-1">
             {isEditing ? (
@@ -91,6 +90,7 @@ export default function TeacherDetailPage() {
               teacher.email.split("@")[0]
             )}
           </h1>
+
           <button
             onClick={() => setIsEditing(!isEditing)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
@@ -99,7 +99,6 @@ export default function TeacherDetailPage() {
           </button>
         </div>
 
-        {/* Thông tin chi tiết */}
         <div className="flex flex-col gap-4 text-gray-700 text-lg">
           <div className="flex justify-between">
             <span className="font-semibold">ID:</span>
@@ -121,26 +120,26 @@ export default function TeacherDetailPage() {
             )}
           </div>
 
-          <div className="flex justify-between">
+          <div className="flex flex-col gap-2">
             <span className="font-semibold">Môn học:</span>
+
             {isEditing ? (
-              <select
-                name="subjects"
-                value={teacher.subjects[0] || ""}
-                onChange={(e) =>
-                  setTeacher((prev) =>
-                    prev ? { ...prev, subjects: [e.target.value] } : prev
-                  )
-                }
-                className="px-3 py-2 border rounded-lg w-full"
-              >
-                <option value="Toán">Toán</option>
-                <option value="Lý">Lý</option>
-                <option value="Hóa">Hóa</option>
-                <option value="Văn">Văn</option>
-              </select>
+              <div className="grid grid-cols-2 gap-2">
+                {subjectList.map((subject) => (
+                  <label key={subject} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={teacher.subjects.includes(subject)}
+                      onChange={(e) => handleCheckboxSubject(subject, e.target.checked)}
+                    />
+                    <span>{subject}</span>
+                  </label>
+                ))}
+              </div>
             ) : (
-              <span>{teacher.subjects.join(", ") || "Chưa có môn"}</span>
+              <span>
+                {teacher.subjects.length > 0 ? teacher.subjects.join(", ") : "Chưa có môn"}
+              </span>
             )}
           </div>
 
@@ -162,15 +161,12 @@ export default function TeacherDetailPage() {
                   teacher.status === "active" ? "bg-green-600" : "bg-red-600"
                 }`}
               >
-                {teacher.status === "active"
-                  ? "Hoạt động"
-                  : "Không còn hoạt động"}
+                {teacher.status === "active" ? "Hoạt động" : "Không còn hoạt động"}
               </span>
             )}
           </div>
         </div>
 
-        {/* Nút Lưu */}
         {isEditing && (
           <div className="flex gap-6 mt-6">
             <button
@@ -182,7 +178,6 @@ export default function TeacherDetailPage() {
           </div>
         )}
 
-        {/* Quay lại danh sách */}
         <button
           onClick={() => router.push("/admin/teachers")}
           className="mt-8 self-center px-8 py-3 bg-gray-200 rounded-xl hover:bg-gray-300 transition font-semibold text-lg"

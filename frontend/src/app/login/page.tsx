@@ -70,8 +70,6 @@ const LoginPage = () => {
 
         await handleGetDetailUser(accessToken);
 
-        console.log(verifyRes);
-
         // Fix verify result — không có verifyRes.data.ok
         if (
           verifyRes.message === "Wallet linked successfully" ||
@@ -83,8 +81,8 @@ const LoginPage = () => {
           localStorage.removeItem("accessToken");
         }
       }
-    } catch (err: unknown) {
-      alert(err.response?.data || "Lỗi đăng nhập!");
+    } catch (err) {
+      alert(err || "Lỗi đăng nhập!");
     }
 
     setLoading(false);

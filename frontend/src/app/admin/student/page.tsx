@@ -7,7 +7,6 @@ interface Student {
   id: number;
   name: string;
   email: string;
-  subject: string; 
   active: boolean;
 }
 
@@ -15,7 +14,6 @@ const initialStudents: Student[] = Array.from({ length: 42 }, (_, i) => ({
   id: i + 1,
   name: `Sinh viên ${i + 1}`,
   email: `student${i + 1}@school.edu`,
-  subject: ["Toán", "Lập trình", "UX/UI", "Mạng máy tính"][i % 4],
   active: i % 3 !== 0,
 }));
 
@@ -35,8 +33,8 @@ export default function StudentsPage() {
         <h1 className="text-3xl font-bold">Danh sách Sinh viên</h1>
 
         <Link
-          href="/teacher/students/add"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-{}}"
+          href="/admin/student/add"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
         >
           + Thêm Sinh viên
         </Link>
@@ -49,7 +47,6 @@ export default function StudentsPage() {
               <th className="px-6 py-3 text-left">ID</th>
               <th className="px-6 py-3 text-left">Tên Sinh viên</th>
               <th className="px-6 py-3 text-left">Email</th>
-              <th className="px-6 py-3 text-left">Môn học</th>
               <th className="px-6 py-3 text-left">Trạng thái</th>
             </tr>
           </thead>
@@ -60,20 +57,16 @@ export default function StudentsPage() {
                 <td className="px-6 py-4">{s.id}</td>
 
                 <td className="px-6 py-4 text-blue-600 hover:underline">
-                  <Link href={`/teacher/students/${s.id}`}>{s.name}</Link>
+                  <Link href={`/admin/student/${s.id}`}>{s.name}</Link>
                 </td>
 
                 <td className="px-6 py-4">{s.email}</td>
 
-                <td className="px-6 py-4">{s.subject}</td>
-
                 <td className="px-6 py-4">
                   <span
-                    className={`
-                      inline-flex items-center justify-center whitespace-nowrap
-                      px-3 py-1 rounded-full text-white text-sm
-                      ${s.active ? "bg-green-600" : "bg-red-600"}
-                    `}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-white text-sm ${
+                      s.active ? "bg-green-600" : "bg-red-600"
+                    }`}
                   >
                     {s.active ? "Đang học" : "Đã nghỉ"}
                   </span>

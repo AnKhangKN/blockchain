@@ -24,7 +24,7 @@ interface Teacher {
 /* ---------------- MOCK DATA ---------------- */
 
 const mockStudents: Student[] = [
-  { _id: "1", email: "student1@example.com" },
+  { _id: "6921ce2fc520b1b0510673e3", email: "2@gmail.com" },
   { _id: "2", email: "student2@example.com" },
 ];
 
@@ -40,7 +40,7 @@ const mockTeachers: Teacher[] = [
 ];
 
 /* ---- Contract trên testnet đã deploy ---- */
-const CONTRACT_ADDRESS = "0xE7DB30Bb2dCAFb1b7cA9afa0618b8156f7575AeA";
+const CONTRACT_ADDRESS = "0x19B8aA4a6d1a4b41CF3AC124046FaA1BAe1749b5";
 
 /* ---------------- COMPONENT ---------------- */
 
@@ -84,6 +84,26 @@ export default function AddGradePage() {
       );
 
       await tx.wait();
+
+      // fetch lại điểm sau khi thêm
+      try {
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as any
+        );
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          ScoreManagerABI.abi,
+          signer
+        );
+
+        const updatedScores = await contract.callStatic.getAllScores(
+          form.studentId
+        );
+        console.log("Updated scores:", updatedScores);
+      } catch (err) {
+        console.error("Lỗi khi fetch điểm sau thêm:", err);
+      }
 
       alert("Thêm điểm thành công!\nTx Hash: " + tx.hash);
     } catch (err) {

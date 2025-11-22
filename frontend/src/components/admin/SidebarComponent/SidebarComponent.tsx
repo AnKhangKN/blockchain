@@ -10,7 +10,7 @@ const SidebarComponent = () => {
   const menu = [
     { label: "Tổng quan", path: "/admin/dashboard" },
     { label: "Quản lý giảng viên", path: "/admin/teachers" },
-    //{ label: "Sinh viên", path: "/teacher/students" },
+    { label: "Quản lý sinh viên", path: "/admin/student" },
     //{ label: "Điểm", path: "/teacher/grades" },
     { label: "Môn học", path: "/admin/subjects" },
   ];

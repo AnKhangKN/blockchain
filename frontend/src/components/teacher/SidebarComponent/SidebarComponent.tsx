@@ -9,7 +9,7 @@ const SidebarComponent = () => {
 
   const menu = [
     { label: "Quản lý", path: "/teacher/dashboard" },
-    { label: "Sinh viên", path: "/teacher/students" },
+    //{ label: "Sinh viên", path: "/teacher/students" },
     { label: "Điểm", path: "/teacher/grades" },
     { label: "Trang cá nhân", path: "/teacher/profile" },
   ];
