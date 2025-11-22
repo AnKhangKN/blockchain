@@ -35,10 +35,10 @@ export default function Grades() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý điểm</h1>
 
-        {/* Nút nhập điểm mới */}
         <button
           onClick={() => router.push("/teacher/grades/new")}
           className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow transition font-medium"
@@ -47,6 +47,7 @@ export default function Grades() {
         </button>
       </div>
 
+      {/* Table */}
       <div className="bg-white rounded-2xl shadow-md border p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-700">
           Danh sách điểm sinh viên

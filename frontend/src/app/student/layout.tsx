@@ -11,7 +11,7 @@ export default function StudentLayout({
       <div className="flex">
         <div className="flex-1">
           <HeaderComponent />
-          <div className="mt-20 bg-amber-50">{children}</div>
+          <div className="mt-0 bg-amber-50">{children}</div>
         </div>
       </div>
     </ProtectedRoute>
