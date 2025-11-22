@@ -1,5 +1,6 @@
 import SidebarComponent from "@/components/admin/SidebarComponent/SidebarComponent";
 import ProtectedRoute from "../ProtectedRoute";
+import HeaderComponent from "@/components/teacher/HeaderComponent/HeaderComponent";
 
 export default function AdminLayout({
   children,
@@ -12,7 +13,11 @@ export default function AdminLayout({
         {/* Sidebar */}
         <SidebarComponent />
         {/* Main Content */}
-        <main className="flex-1 overflow-auto p-6 bg-gray-50">{children}</main>
+
+        <div className="flex-1">
+          <HeaderComponent />
+          {children}
+        </div>
       </div>
     </ProtectedRoute>
   );
