@@ -5,7 +5,12 @@ const { Schema, model } = mongoose;
 const subjectSchema = new Schema({
   name: { type: String, required: true },
   code: { type: String, required: true, unique: true },
-  credit: { type: Number, required: true },
+  status: {
+    type: String,
+    required: true,
+    enum: ["active", "inactive"],
+    default: "active",
+  },
 });
 
 // ================= Export Model =================
