@@ -12,7 +12,7 @@ let contract: ethers.Contract | null = null;
 export function initBlockchain() {
   if (contract) return; // đã init rồi
   // Dùng provider mặc định (public RPC) để chỉ đọc
-  provider = new ethers.providers.JsonRpcProvider("https://coston-api.flare.network/ext/C/rpc"); // đổi thành testnet RPC của bạn
+  provider = new ethers.providers.JsonRpcProvider("https://coston-api.flare.network/ext/C/rpc"); 
   contract = new ethers.Contract(CONTRACT_ADDRESS, ScoreManagerABI.abi, provider);
   console.log("Blockchain initialized (read-only)");
 }

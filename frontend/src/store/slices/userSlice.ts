@@ -4,6 +4,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface Subject {
   _id: string;
   name: string;
+  code: string
 }
 
 interface UserState {

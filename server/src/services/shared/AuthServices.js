@@ -79,7 +79,7 @@ class AuthServices {
   async getUserDetails(userId) {
     const user = await User.findById(userId)
       .select("-password")
-      .populate("subjects", "_id name");
+      .populate("subjects", "_id name code");
 
     if (!user) {
       throwError("Người dùng không tồn tại!", 404);

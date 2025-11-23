@@ -208,9 +208,11 @@ export default function TeacherDetailPage() {
 
           {/* Môn dạy */}
           <div className="flex flex-col gap-2">
-            <span className="font-semibold">Môn dạy:</span>
+            <span className="font-semibold">
+              {teacher.isTeacher ? "Môn dạy:" : "Môn học:"}
+            </span>
 
-            {isEditing ? (
+            {isEditing && teacher.isTeacher ? (
               <div className="grid grid-cols-2 gap-2">
                 {subjectList.map((subject) => (
                   <label key={subject._id} className="flex items-center gap-2">

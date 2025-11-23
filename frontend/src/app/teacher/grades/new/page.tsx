@@ -18,6 +18,7 @@ interface Student {
 interface Subject {
   _id: string;
   name: string;
+  code: string;
 }
 
 interface Score {
@@ -32,7 +33,8 @@ export default function AddGradePage() {
   const user = useSelector((state: RootState) => state.user);
 
   // ------------ STATE MỚI TÁCH RIÊNG ------------
-  const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedSubjectId, setSelectedSubjectId] = useState("");
+  const [selectedSubjectCode, setSelectedSubjectCode] = useState("");
   const [selectedStudent, setSelectedStudent] = useState("");
   const [score, setScore] = useState("");
 
@@ -76,7 +78,7 @@ export default function AddGradePage() {
   const handleAdd = async () => {
     if (!window.ethereum) return alert("Bạn cần cài MetaMask!");
 
-    if (!selectedStudent || !selectedSubject || !score)
+    if (!selectedStudent || !selectedSubjectCode || !score)
       return alert("Điền đầy đủ thông tin!");
 
     try {
@@ -91,7 +93,11 @@ export default function AddGradePage() {
         signer
       );
 
-      await contract.addScore(selectedStudent, selectedSubject, Number(score));
+      await contract.addScore(
+        selectedStudent,
+        selectedSubjectCode,
+        Number(score)
+      );
 
       alert("✔ Thêm điểm thành công!");
       fetchScores(selectedStudent);
@@ -104,7 +110,7 @@ export default function AddGradePage() {
   const handleUpdate = async () => {
     if (!window.ethereum) return alert("Bạn cần cài MetaMask!");
 
-    if (!selectedStudent || !selectedSubject || !score)
+    if (!selectedStudent || !selectedSubjectCode || !score)
       return alert("Điền đầy đủ thông tin!");
 
     try {
@@ -121,7 +127,7 @@ export default function AddGradePage() {
 
       await contract.updateScore(
         selectedStudent,
-        selectedSubject,
+        selectedSubjectCode,
         Number(score)
       );
 
@@ -146,17 +152,23 @@ export default function AddGradePage() {
             <label className="font-medium">Môn học</label>
             <select
               className="w-full border p-2 rounded mt-1"
-              value={selectedSubject}
+              value={selectedSubjectId}
               onChange={(e) => {
-                const subId = e.target.value;
-                setSelectedSubject(subId);
-                fetchStudentsBySubject(subId);
+                const id = e.target.value;
+                setSelectedSubjectId(id);
+
+                const subject = user.subjects.find(
+                  (x: Subject) => x._id === id
+                );
+                setSelectedSubjectCode(subject?.code || "");
+
+                fetchStudentsBySubject(id); // BE dùng _id
               }}
             >
               <option value="">Chọn môn học…</option>
               {user.subjects.map((sub: Subject) => (
                 <option key={sub._id} value={sub._id}>
-                  {sub.name}
+                  {sub.name} ({sub.code})
                 </option>
               ))}
             </select>
