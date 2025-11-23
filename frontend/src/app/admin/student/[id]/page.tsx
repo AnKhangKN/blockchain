@@ -4,15 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import * as SubjectServices from "@/services/admin/SubjectServices";
-import * as ClassServices from "@/services/admin/ClassServices";
 import * as ValidateToken from "@/utils/token.utils";
 import * as UserServices from "@/services/admin/UserServices";
-
-interface ClassType {
-  _id: string;
-  className: string;
-  classCode: string;
-}
 
 interface SubjectType {
   _id: string;
@@ -23,9 +16,6 @@ interface Student {
   userId: string;
   name: string;
   email: string;
-  classes: ClassType[];
-  classId: string;
-  className: string;
   subjects: SubjectType[];
   status: boolean;
 }
@@ -35,7 +25,6 @@ export default function StudentDetailPage() {
   const router = useRouter();
 
   const [student, setStudent] = useState<Student | null>(null);
-  const [allClasses, setAllClasses] = useState<ClassType[]>([]);
   const [allSubjects, setAllSubjects] = useState<SubjectType[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -45,7 +34,6 @@ export default function StudentDetailPage() {
       try {
         const accessToken = await ValidateToken.getValidAccessToken();
 
-        const classesRes = await ClassServices.getClasses(accessToken);
         const subjectsRes = await SubjectServices.getSubjects(accessToken);
         const userRes = await UserServices.getUserDetail(accessToken, id);
 
@@ -55,15 +43,10 @@ export default function StudentDetailPage() {
           userId: id!,
           name: userData.fullName || "",
           email: userData.email || "",
-          classes: userData.classes || [],
-          classId: userData.classId || (classesRes.data.data[0]?._id ?? ""),
-          className:
-            userData.className || (classesRes.data.data[0]?.className ?? ""),
           subjects: userData.subjects || [],
           status: userData.status ?? false,
         });
 
-        setAllClasses(classesRes.data.data || []);
         setAllSubjects(subjectsRes.data || []);
       } catch (err) {
         console.error(err);
@@ -90,15 +73,13 @@ export default function StudentDetailPage() {
     try {
       const accessToken = await ValidateToken.getValidAccessToken();
 
-      console.log(student.subjects.map((s) => s._id));
-
       await UserServices.updateStudent(accessToken, student.userId, {
         fullName: student.name,
         email: student.email,
-        classId: student.classId,
         subjects: student.subjects.map((s) => s._id),
         status: student.status,
       });
+
       setIsEditing(false);
       alert("✔ Đã lưu thay đổi");
     } catch (err) {
@@ -143,36 +124,6 @@ export default function StudentDetailPage() {
               />
             </div>
 
-            {/* Lớp học */}
-            <div>
-              <label className="font-semibold text-gray-700">Lớp học</label>
-              <select
-                className="border p-3 rounded w-full mt-1 focus:ring-2 focus:ring-blue-500"
-                value={student.classId}
-                onChange={(e) => {
-                  const selectedClass = allClasses.find(
-                    (c) => c._id === e.target.value
-                  );
-                  if (selectedClass) {
-                    setStudent({
-                      ...student,
-                      classId: selectedClass._id,
-                      className: selectedClass.className,
-                    });
-                  } else {
-                    setStudent({ ...student, classId: "", className: "" });
-                  }
-                }}
-              >
-                <option value="">-- Chọn lớp --</option>
-                {allClasses.map((cls) => (
-                  <option key={cls._id} value={cls._id}>
-                    {cls.className}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Môn học */}
             <div>
               <label className="font-semibold text-gray-700">Môn học</label>
@@ -215,20 +166,6 @@ export default function StudentDetailPage() {
             <div>
               <p className="font-semibold text-gray-700">Email:</p>
               <p>{student.email}</p>
-            </div>
-
-            <div>
-              <p className="font-semibold text-gray-700">Lớp học:</p>
-              <p className="px-3 inline-block py-1 bg-purple-600 text-white rounded-full text-sm">
-                {student.classes.map((cls) => (
-                  <span
-                    key={cls._id}
-                    className="px-3 py-1 text-white rounded-full text-sm"
-                  >
-                    {cls.classCode}
-                  </span>
-                ))}
-              </p>
             </div>
 
             <div>
@@ -302,7 +239,6 @@ export default function StudentDetailPage() {
 
             <div className="flex justify-center gap-4">
               <button
-                // onClick={handleDelete}
                 className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
                 Xóa
