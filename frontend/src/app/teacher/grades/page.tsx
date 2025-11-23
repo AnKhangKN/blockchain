@@ -35,6 +35,10 @@ export default function Grades() {
       {/* Header – ĐÃ BỎ NÚT NHẬP ĐIỂM MỚI */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý điểm</h1>
+
+        <button onClick={() => router.push("/teacher/grades/new")}>
+          Thêm điểm
+        </button>
       </div>
 
       {/* Table */}

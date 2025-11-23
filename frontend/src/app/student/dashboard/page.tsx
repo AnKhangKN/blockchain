@@ -63,7 +63,7 @@ export default function StudentDashboardPage() {
           <p className="text-center text-lg">Đang tải điểm từ blockchain...</p>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* LEFT */}
+            {/* LEFT PROFILE */}
             <section className="space-y-8">
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                 <div className="flex items-center gap-5">
@@ -97,14 +97,17 @@ export default function StudentDashboardPage() {
                     <thead className="bg-slate-100 text-slate-700">
                       <tr>
                         <th className="p-3 text-left">Môn</th>
-                        <th className="p-3 text-center">Điểm</th>
+                        <th className="p-3 text-center">Tổng kết</th>
                       </tr>
                     </thead>
                     <tbody>
                       {grades.map((g, idx) => (
                         <tr key={idx} className="border-t hover:bg-slate-50">
                           <td className="p-3">{g.subjectId}</td>
-                          <td className="p-3">{g.value}</td>
+
+                          <td className="p-3 text-center font-semibold">
+                            {g.value !== undefined ? g.value : "-"}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
