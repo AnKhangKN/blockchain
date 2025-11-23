@@ -18,19 +18,23 @@ const subjectStudents = [
   { name: "Phân tích thiết kế", students: 28 },
 ];
 
+// Dữ liệu lớp học (demo)
+const totalClasses = 12; // ⭐ Thêm số lớp học
+
 const TeacherDashboard = () => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Tổng quan giảng viên</h1>
 
       {/* Cards tổng quan */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        {/* Card */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        {/* Tổng số môn */}
         <div className="bg-white shadow-md rounded-xl p-6 border hover:shadow-lg transition">
           <p className="text-gray-500 text-sm">Tổng số môn đang dạy</p>
           <h2 className="text-4xl font-bold mt-2">{subjectStudents.length}</h2>
         </div>
 
+        {/* Tổng số sinh viên */}
         <div className="bg-white shadow-md rounded-xl p-6 border hover:shadow-lg transition">
           <p className="text-gray-500 text-sm">Tổng số sinh viên</p>
           <h2 className="text-4xl font-bold mt-2">
@@ -38,9 +42,16 @@ const TeacherDashboard = () => {
           </h2>
         </div>
 
+        {/* Điểm trung bình */}
         <div className="bg-white shadow-md rounded-xl p-6 border hover:shadow-lg transition">
           <p className="text-gray-500 text-sm">Điểm trung bình</p>
           <h2 className="text-4xl font-bold mt-2">7.8</h2>
+        </div>
+
+        {/* ⭐ Tổng số lớp học */}
+        <div className="bg-white shadow-md rounded-xl p-6 border hover:shadow-lg transition">
+          <p className="text-gray-500 text-sm">Tổng số lớp học</p>
+          <h2 className="text-4xl font-bold mt-2">{totalClasses}</h2>
         </div>
       </div>
 

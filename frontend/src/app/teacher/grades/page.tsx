@@ -8,18 +8,21 @@ const teacherSubjects = [
     id: 1,
     subject: "Lập trình Web",
     credits: 3,
+    className: "CNTT01",
     status: "Đang diễn ra",
   },
   {
     id: 2,
     subject: "Cơ sở dữ liệu",
     credits: 4,
+    className: "CNTT03",
     status: "Đã kết thúc",
   },
   {
     id: 3,
     subject: "Mạng máy tính",
     credits: 3,
+    className: "CNTT02",
     status: "Đang diễn ra",
   },
 ];
@@ -29,13 +32,9 @@ export default function Grades() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header – Đã bỏ nút nhập điểm */}
+      {/* Header – ĐÃ BỎ NÚT NHẬP ĐIỂM MỚI */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý điểm</h1>
-
-        <button onClick={() => router.push("/teacher/grades/new")}>
-          Nhập điểm mới
-        </button>
       </div>
 
       {/* Table */}
@@ -50,6 +49,7 @@ export default function Grades() {
               <tr>
                 <th className="p-3 text-left">Môn học</th>
                 <th className="p-3 text-center">Số tín chỉ</th>
+                <th className="p-3 text-center">Lớp học</th>
                 <th className="p-3 text-center">Trạng thái</th>
               </tr>
             </thead>
@@ -64,9 +64,10 @@ export default function Grades() {
                   className="border-t hover:bg-gray-50 transition cursor-pointer"
                 >
                   <td className="p-3">{item.subject}</td>
-
                   <td className="p-3 text-center">{item.credits}</td>
-
+                  <td className="p-3 text-center font-medium text-blue-600">
+                    {item.className}
+                  </td>
                   <td
                     className={`p-3 text-center font-medium ${
                       item.status === "Đang diễn ra"
