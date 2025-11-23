@@ -18,12 +18,12 @@ const EditSubjectPage = () => {
     const fetchData = async () => {
       try {
         const accessToken = await ValidateToken.getValidAccessToken();
-        const res = await SubjectServices.getSubjectById(id as string, accessToken);
+        //const res = await SubjectServices.getSubjectById(id as string, accessToken);
 
-        const s = res.data;
+        //const s = res.data;
 
-        setName(s.name);
-        setCode(s.code);
+        //setName(s.name);
+       // setCode(s.code);
       } catch (error) {
         console.log("Lỗi khi lấy môn học:", error);
       } finally {
@@ -39,17 +39,7 @@ const EditSubjectPage = () => {
     e.preventDefault();
 
     try {
-      const accessToken = await ValidateToken.getValidAccessToken();
-
-      await SubjectServices.updateSubject(
-        id as string,
-        {
-          name,
-          code,
-        },
-        accessToken
-      );
-
+      
       alert("Cập nhật thành công!");
       router.push("/admin/subjects");
     } catch (error) {

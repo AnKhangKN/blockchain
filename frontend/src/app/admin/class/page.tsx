@@ -3,46 +3,45 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import * as ValidateToken from "@/utils/token.utils";
-import * as SubjectServices from "@/services/admin/SubjectServices";
+import * as ClassServices from "@/services/admin/ClassServices";
 
-interface Subject {
+interface ClassItem {
   _id: string;
   name: string;
   code: string;
-  credit: number;
   status: string;
 }
 
-const SubjectsPage = () => {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+const ClassesPage = () => {
+  const [classes, setClasses] = useState<ClassItem[]>([]);
 
   useEffect(() => {
-    const fetchSubjects = async () => {
+    const fetchClasses = async () => {
       try {
         const accessToken = await ValidateToken.getValidAccessToken();
-        const res = await SubjectServices.getSubjects(accessToken);
+        const res = await ClassServices.getClasses(accessToken);
 
-        const activeSubjects = res.data.filter(
-          (s: Subject) => s.status === "active"
+        const activeClasses = res.data.filter(
+          (c: ClassItem) => c.status === "active"
         );
 
-        setSubjects(activeSubjects);
+        setClasses(activeClasses);
       } catch (error) {
-        console.log("Lỗi khi lấy môn học:", error);
+        console.log("Lỗi khi lấy lớp học:", error);
       }
     };
 
-    fetchSubjects();
+    fetchClasses();
   }, []);
 
   const handleDelete = async (id: string) => {
-    const ok = confirm("Bạn có chắc muốn xóa môn học này?");
+    const ok = confirm("Bạn có chắc muốn xóa lớp học này?");
     if (!ok) return;
 
     try {
-      setSubjects((prev) => prev.filter((s) => s._id !== id));
+      setClasses((prev) => prev.filter((c) => c._id !== id));
     } catch (error) {
-      console.log("Lỗi khi xóa môn học:", error);
+      console.log("Lỗi khi xóa lớp học:", error);
     }
   };
 
@@ -52,50 +51,45 @@ const SubjectsPage = () => {
 
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Danh sách môn học
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-800">Danh sách lớp học</h1>
 
           <Link
-            href="/admin/subjects/add"
+            href="/admin/class/add"
             className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            + Thêm môn học
+            + Thêm lớp học
           </Link>
         </div>
 
         {/* Table */}
         <div className="overflow-hidden rounded-xl border shadow-sm">
-          <table className="w-full">
+          <table className="w-full text-center">
             <thead>
-              <tr className="bg-gray-100 text-left text-gray-700">
+              <tr className="bg-gray-100 text-gray-700">
                 <th className="p-3 border text-center">#</th>
-                <th className="p-3 border text-center">Tên môn</th>
-                <th className="p-3 border text-center">Mã môn</th>
+                <th className="p-3 border text-center">Tên lớp</th>
+                <th className="p-3 border text-center">Mã lớp</th>
                 <th className="p-3 border text-center">Hành động</th>
               </tr>
             </thead>
 
             <tbody>
-              {subjects.map((s, index) => (
-                <tr
-                  key={s._id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
+              {classes.map((c, index) => (
+                <tr key={c._id} className="border-t hover:bg-gray-50 transition">
                   <td className="p-3 border text-center">{index + 1}</td>
-                  <td className="p-3 border text-center">{s.name}</td>
-                  <td className="p-3 border text-center">{s.code}</td>
+                  <td className="p-3 border text-center">{c.name}</td>
+                  <td className="p-3 border text-center">{c.code}</td>
 
                   <td className="p-3 border text-center space-x-2">
                     <Link
-                      href={`/admin/subjects/edit/${s._id}`}
+                      href={`/admin/classes/edit/${c._id}`}
                       className="px-4 py-1 rounded-lg bg-yellow-500 text-white hover:bg-yellow-600 transition"
                     >
                       Sửa
                     </Link>
 
                     <button
-                      onClick={() => handleDelete(s._id)}
+                      onClick={() => handleDelete(c._id)}
                       className="px-4 py-1 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
                     >
                       Xóa
@@ -104,10 +98,10 @@ const SubjectsPage = () => {
                 </tr>
               ))}
 
-              {subjects.length === 0 && (
+              {classes.length === 0 && (
                 <tr>
                   <td colSpan={4} className="p-4 text-gray-500 text-center">
-                    Không có môn học nào.
+                    Không có lớp học nào.
                   </td>
                 </tr>
               )}
@@ -120,4 +114,4 @@ const SubjectsPage = () => {
   );
 };
 
-export default SubjectsPage;
+export default ClassesPage;

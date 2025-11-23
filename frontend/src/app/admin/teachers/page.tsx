@@ -24,10 +24,11 @@ export default function TeachersPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // New teacher info
   const [newTeacher, setNewTeacher] = useState({
     name: "",
     email: "",
-    subject: "Toán",
+    subjects: [] as string[],
     active: true,
   });
 
@@ -50,16 +51,7 @@ export default function TeachersPage() {
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const currentTeachers = teachers.slice(startIndex, startIndex + PAGE_SIZE);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setNewTeacher((prev) => ({
-      ...prev,
-      [name]: name === "active" ? value === "true" : value,
-    }));
-  };
-
+  // Save new teacher
   const handleAdd = () => {
     const newData = {
       _id: crypto.randomUUID(),
@@ -67,7 +59,7 @@ export default function TeachersPage() {
       isTeacher: true,
       isAdmin: false,
       status: newTeacher.active ? "active" : "inactive",
-      subjects: [newTeacher.subject],
+      subjects: newTeacher.subjects,
       createdAt: new Date().toISOString(),
     };
 
@@ -77,7 +69,7 @@ export default function TeachersPage() {
     setNewTeacher({
       name: "",
       email: "",
-      subject: "Toán",
+      subjects: [],
       active: true,
     });
   };
@@ -105,7 +97,9 @@ export default function TeachersPage() {
               name="name"
               placeholder="Tên giảng viên"
               value={newTeacher.name}
-              onChange={handleChange}
+              onChange={(e) =>
+                setNewTeacher((prev) => ({ ...prev, name: e.target.value }))
+              }
               className="px-3 py-2 border rounded w-full mb-3"
             />
 
@@ -114,28 +108,55 @@ export default function TeachersPage() {
               name="email"
               placeholder="Email"
               value={newTeacher.email}
-              onChange={handleChange}
+              onChange={(e) =>
+                setNewTeacher((prev) => ({ ...prev, email: e.target.value }))
+              }
               className="px-3 py-2 border rounded w-full mb-3"
             />
 
-            {/* Chỗ này giữ lại subject trong modal (nếu sau này cần dùng), 
-                nhưng KHÔNG HIỂN THỊ ra bảng */}
-            <select
-              name="subject"
-              value={newTeacher.subject}
-              onChange={handleChange}
-              className="px-3 py-2 border rounded w-full mb-3"
-            >
-              <option value="Toán">Toán</option>
-              <option value="Lý">Lý</option>
-              <option value="Hóa">Hóa</option>
-              <option value="Văn">Văn</option>
-            </select>
+            {/* CHECKBOX MULTI SELECT */}
+            <label className="font-medium block mb-2">Chọn môn dạy</label>
+
+            <div className="grid grid-cols-1 gap-2 mb-4">
+              {[
+                "Toán",
+                "Lý",
+                "Hóa",
+                "Văn",
+                "Công nghệ phần mềm",
+                "Mạng máy tính",
+                "Kỹ thuật lập trình",
+              ].map((subject) => (
+                <label key={subject} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    value={subject}
+                    checked={newTeacher.subjects.includes(subject)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewTeacher((prev) => ({
+                        ...prev,
+                        subjects: prev.subjects.includes(value)
+                          ? prev.subjects.filter((s) => s !== value)
+                          : [...prev.subjects, value],
+                      }));
+                    }}
+                    className="w-4 h-4"
+                  />
+                  {subject}
+                </label>
+              ))}
+            </div>
 
             <select
               name="active"
               value={newTeacher.active.toString()}
-              onChange={handleChange}
+              onChange={(e) =>
+                setNewTeacher((prev) => ({
+                  ...prev,
+                  active: e.target.value === "true",
+                }))
+              }
               className="px-3 py-2 border rounded w-full mb-4"
             >
               <option value="true">Hoạt động</option>
@@ -170,9 +191,6 @@ export default function TeachersPage() {
                 Tên Giảng viên
               </th>
               <th className="px-6 py-3 text-left font-medium">Email</th>
-
-              {/* 🔥 ĐÃ BỎ CỘT MÔN DẠY */}
-
               <th className="px-6 py-3 text-left font-medium">Trạng thái</th>
             </tr>
           </thead>
@@ -194,8 +212,6 @@ export default function TeachersPage() {
                 </td>
 
                 <td className="px-6 py-4">{teacher.email}</td>
-
-                {/* ❌ GỠ HOÀN TOÀN MÔN DẠY — KHÔNG HIỂN THỊ */}
 
                 <td className="px-6 py-4">
                   <span

@@ -8,6 +8,7 @@ interface Student {
   name: string;
   email: string;
   active: boolean;
+  className: string; // 🆕 thêm cột lớp
 }
 
 const initialStudents: Student[] = Array.from({ length: 42 }, (_, i) => ({
@@ -15,6 +16,7 @@ const initialStudents: Student[] = Array.from({ length: 42 }, (_, i) => ({
   name: `Sinh viên ${i + 1}`,
   email: `student${i + 1}@school.edu`,
   active: i % 3 !== 0,
+  className: `CT10${(i % 5) + 1}`, // 🆕 dữ liệu demo lớp
 }));
 
 const PAGE_SIZE = 10;
@@ -47,6 +49,7 @@ export default function StudentsPage() {
               <th className="px-6 py-3 text-left">ID</th>
               <th className="px-6 py-3 text-left">Tên Sinh viên</th>
               <th className="px-6 py-3 text-left">Email</th>
+              <th className="px-6 py-3 text-left">Lớp</th> {/* 🆕 cột lớp */}
               <th className="px-6 py-3 text-left">Trạng thái</th>
             </tr>
           </thead>
@@ -61,6 +64,8 @@ export default function StudentsPage() {
                 </td>
 
                 <td className="px-6 py-4">{s.email}</td>
+
+                <td className="px-6 py-4">{s.className}</td> {/* 🆕 hiển thị lớp */}
 
                 <td className="px-6 py-4">
                   <span

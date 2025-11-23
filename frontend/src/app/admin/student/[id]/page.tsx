@@ -11,12 +11,16 @@ export default function StudentDetailPage() {
   // Danh sách môn học demo
   const allSubjects = ["Toán", "Lập trình", "Marketing", "Luật", "Kinh tế", "AI"];
 
+  // Danh sách lớp demo
+  const allClasses = ["CT101", "CT102", "CT103", "CT104", "CT105"];
+
   // Sinh viên học nhiều môn (demo)
   const [student, setStudent] = useState({
     id,
     name: `Sinh viên ${id}`,
     email: `student${id}@school.edu`,
     subjects: ["Toán", "AI"], // nhiều môn
+    className: "CT101", // 🆕 thêm lớp
     active: Number(id) % 3 !== 0,
   });
 
@@ -81,6 +85,24 @@ export default function StudentDetailPage() {
               />
             </div>
 
+            {/* LỚP HỌC (🆕) */}
+            <div>
+              <label className="font-semibold text-gray-700">Lớp học</label>
+              <select
+                className="border p-3 rounded w-full mt-1 focus:ring-2 focus:ring-blue-500"
+                value={student.className}
+                onChange={(e) =>
+                  setStudent({ ...student, className: e.target.value })
+                }
+              >
+                {allClasses.map((cls) => (
+                  <option key={cls} value={cls}>
+                    {cls}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* MÔN HỌC (multi-select) */}
             <div>
               <label className="font-semibold text-gray-700">Môn học</label>
@@ -124,6 +146,14 @@ export default function StudentDetailPage() {
             <div>
               <p className="font-semibold text-gray-700">Email:</p>
               <p>{student.email}</p>
+            </div>
+
+            {/* HIỂN THỊ LỚP HỌC (🆕) */}
+            <div>
+              <p className="font-semibold text-gray-700">Lớp học:</p>
+              <p className="px-3 inline-block py-1 bg-purple-600 text-white rounded-full text-sm">
+                {student.className}
+              </p>
             </div>
 
             <div>
