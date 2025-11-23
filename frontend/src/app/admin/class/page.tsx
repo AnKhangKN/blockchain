@@ -7,8 +7,8 @@ import * as ClassServices from "@/services/admin/ClassServices";
 
 interface ClassItem {
   _id: string;
-  name: string;
-  code: string;
+  className: string;
+  classCode: string;
   status: string;
 }
 
@@ -21,7 +21,7 @@ const ClassesPage = () => {
         const accessToken = await ValidateToken.getValidAccessToken();
         const res = await ClassServices.getClasses(accessToken);
 
-        const activeClasses = res.data.filter(
+        const activeClasses = res.data.data.filter(
           (c: ClassItem) => c.status === "active"
         );
 
@@ -48,10 +48,11 @@ const ClassesPage = () => {
   return (
     <div className="p-6 flex justify-center">
       <div className="bg-white p-6 rounded-2xl shadow-lg border w-full max-w-5xl">
-
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Danh sách lớp học</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Danh sách lớp học
+          </h1>
 
           <Link
             href="/admin/class/add"
@@ -75,10 +76,13 @@ const ClassesPage = () => {
 
             <tbody>
               {classes.map((c, index) => (
-                <tr key={c._id} className="border-t hover:bg-gray-50 transition">
+                <tr
+                  key={c._id}
+                  className="border-t hover:bg-gray-50 transition"
+                >
                   <td className="p-3 border text-center">{index + 1}</td>
-                  <td className="p-3 border text-center">{c.name}</td>
-                  <td className="p-3 border text-center">{c.code}</td>
+                  <td className="p-3 border text-center">{c.className}</td>
+                  <td className="p-3 border text-center">{c.classCode}</td>
 
                   <td className="p-3 border text-center space-x-2">
                     <Link
@@ -108,7 +112,6 @@ const ClassesPage = () => {
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   );

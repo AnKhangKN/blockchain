@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL; 
-// Ví dụ: http://localhost:5000/api
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_API; 
 
 export const getClasses = async (accessToken: string) => {
-  return axios.get(`${API_URL}/classes`, {
+  return axios.get(`${API_URL}/admin/classes`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -20,7 +19,7 @@ export const getClassById = async (id: string, accessToken: string) => {
 };
 
 export const createClass = async (data: any, accessToken: string) => {
-  return axios.post(`${API_URL}/classes`, data, {
+  return axios.post(`${API_URL}/admin/classes`, data, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

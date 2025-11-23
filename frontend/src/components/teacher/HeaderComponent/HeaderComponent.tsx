@@ -15,6 +15,9 @@ const HeaderComponent = () => {
     { name: "Dashboard", link: "/teacher/dashboard" },
     { name: "Dashboard", link: "/admin/dashboard" },
     { name: "Quản lý môn học", link: "/admin/subjects" },
+    { name: "Quản lý người dùng", link: "/admin/teachers" },
+    { name: "Quản lý sinh viên", link: "/admin/student" },
+    { name: "Quản lý lớp học", link: "/admin/class" },
     { name: "Grades", link: "/teacher/grades" },
     { name: "Students", link: "/teacher/students" },
     { name: "Profile", link: "/teacher/profile" },
@@ -29,7 +32,6 @@ const HeaderComponent = () => {
       <div className="text-xl font-semibold text-gray-700">
         {activeItem ? activeItem.name : "Quản lý giảng viên"}
       </div>
-      
 
       <div className="flex items-center gap-2">
         <div className="bg-gray-200 rounded-full w-8 h-8"></div>

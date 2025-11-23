@@ -4,15 +4,21 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import * as ValidateToken from "@/utils/token.utils";
 import * as UserServices from "@/services/admin/UserServices";
+import * as SubjectServices from "@/services/admin/SubjectServices";
 
 interface Teacher {
   _id: string;
   email: string;
   isTeacher: boolean;
   isAdmin: boolean;
-  status: string;
+  status: "active" | "inactive";
   subjects: string[];
   createdAt: string;
+}
+
+interface Subject {
+  _id: string;
+  name: string;
 }
 
 export default function TeacherDetailPage() {
@@ -20,23 +26,33 @@ export default function TeacherDetailPage() {
   const router = useRouter();
 
   const [teacher, setTeacher] = useState<Teacher | null>(null);
+  const [subjectList, setSubjectList] = useState<Subject[]>([]);
   const [isEditing, setIsEditing] = useState(false);
 
+  // ================================
+  // FETCH GIẢNG VIÊN + MÔN HỌC
+  // ================================
   useEffect(() => {
-    const fetchTeacher = async () => {
+    const fetchData = async () => {
       try {
         const accessToken = await ValidateToken.getValidAccessToken();
-        const res = await UserServices.getUserDetail(
+
+        // Lấy thông tin giảng viên
+        const userRes = await UserServices.getUserDetail(
           accessToken,
           String(params.id)
         );
+        setTeacher(userRes.data);
 
-        setTeacher(res.data);
+        // Lấy danh sách môn học
+        const subjectRes = await SubjectServices.getSubjects(accessToken);
+        setSubjectList(subjectRes.data);
       } catch (err) {
         console.log(err);
       }
     };
-    fetchTeacher();
+
+    fetchData();
   }, [params.id]);
 
   if (!teacher)
@@ -48,6 +64,9 @@ export default function TeacherDetailPage() {
       </div>
     );
 
+  // ================================
+  // HANDLE INPUT CHANGE
+  // ================================
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -57,51 +76,41 @@ export default function TeacherDetailPage() {
       prev
         ? {
             ...prev,
-            [name]:
-              name === "status"
-                ? value === "true"
-                : value,
+            [name]: value, // GIỮ ĐÚNG STRING "active"/"inactive"
           }
         : prev
     );
   };
 
-  const handleCheckboxSubject = (subject: string, checked: boolean) => {
+  const handleCheckboxSubject = (subjectId: string, checked: boolean) => {
     setTeacher((prev) =>
       prev
         ? {
             ...prev,
             subjects: checked
-              ? [...prev.subjects, subject]
-              : prev.subjects.filter((s) => s !== subject),
+              ? [...prev.subjects, subjectId]
+              : prev.subjects.filter((id) => id !== subjectId),
           }
         : prev
     );
   };
 
+  // ================================
+  // SAVE TEACHER
+  // ================================
   const handleSave = async () => {
     try {
-      console.log("Saved teacher:", teacher);
-
       // const accessToken = await ValidateToken.getValidAccessToken();
-      // await UserServices.updateUser(accessToken, teacher?._id!, teacher);
-
-      setIsEditing(false);
+      // await UserServices.updateUser(accessToken, teacher!._id, {
+      //   email: teacher!.email,
+      //   status: teacher!.status,
+      //   subjects: teacher!.subjects,
+      // });
+      // setIsEditing(false);
     } catch (err) {
       console.log(err);
     }
   };
-
-  const subjectList = [
-    "Toán",
-    "Lý",
-    "Hóa",
-    "Văn",
-    "Sinh",
-    "Sử",
-    "Địa",
-    "Tin học",
-  ];
 
   return (
     <main className="p-6 min-h-screen bg-gray-50 flex flex-col items-center">
@@ -120,11 +129,13 @@ export default function TeacherDetailPage() {
         </div>
 
         <div className="flex flex-col gap-4 text-gray-700 text-lg">
+          {/* ID */}
           <div className="flex justify-between">
             <span className="font-semibold">ID:</span>
             <span>{teacher._id}</span>
           </div>
 
+          {/* Email */}
           <div className="flex justify-between">
             <span className="font-semibold">Email:</span>
             {isEditing ? (
@@ -140,53 +151,102 @@ export default function TeacherDetailPage() {
             )}
           </div>
 
-          {/* 🔥 MÔN DẠY */}
+          {/* Quyền */}
+          {/* QUYỀN */}
+          <div className="flex justify-between">
+            <span className="font-semibold">Quyền:</span>
+
+            {isEditing ? (
+              <select
+                name="role"
+                className="px-3 py-2 border rounded-lg w-full"
+                value={
+                  teacher.isAdmin
+                    ? "admin"
+                    : teacher.isTeacher
+                    ? "teacher"
+                    : "student"
+                }
+                onChange={(e) => {
+                  const role = e.target.value;
+
+                  setTeacher((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          isAdmin: role === "admin",
+                          isTeacher: role === "teacher",
+                        }
+                      : prev
+                  );
+                }}
+              >
+                <option value="admin">Admin</option>
+                <option value="teacher">Giảng viên</option>
+                <option value="student">Sinh viên</option>
+              </select>
+            ) : (
+              <span>
+                {teacher.isAdmin
+                  ? "Admin"
+                  : teacher.isTeacher
+                  ? "Giảng viên"
+                  : "Sinh viên"}
+              </span>
+            )}
+          </div>
+
+          {/* Môn dạy */}
           <div className="flex flex-col gap-2">
             <span className="font-semibold">Môn dạy:</span>
 
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2">
                 {subjectList.map((subject) => (
-                  <label key={subject} className="flex items-center gap-2">
+                  <label key={subject._id} className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      checked={teacher.subjects.includes(subject)}
+                      checked={teacher.subjects.includes(subject._id)}
                       onChange={(e) =>
-                        handleCheckboxSubject(subject, e.target.checked)
+                        handleCheckboxSubject(subject._id, e.target.checked)
                       }
                     />
-                    <span>{subject}</span>
+                    <span>{subject.name}</span>
                   </label>
                 ))}
               </div>
             ) : (
               <span>
                 {teacher.subjects.length > 0
-                  ? teacher.subjects.join(", ")
+                  ? teacher.subjects
+                      .map(
+                        (id) =>
+                          subjectList.find((s) => s._id === id)?.name || ""
+                      )
+                      .join(", ")
                   : "Chưa có môn dạy"}
               </span>
             )}
           </div>
 
-          {/* TRẠNG THÁI */}
+          {/* STATUS */}
           <div className="flex justify-between items-center">
             <span className="font-semibold">Trạng thái:</span>
+
             {isEditing ? (
               <select
                 name="status"
-                value={teacher.status === "active" ? "true" : "false"}
+                value={teacher.status}
                 onChange={handleChange}
                 className="px-3 py-2 border rounded-lg w-full"
               >
-                <option value="true">Hoạt động</option>
-                <option value="false">Không còn hoạt động</option>
+                <option value="active">Hoạt động</option>
+                <option value="inactive">Không còn hoạt động</option>
               </select>
             ) : (
               <span
                 className={`px-4 py-2 rounded-full text-white text-base font-semibold ${
-                  teacher.status === "active"
-                    ? "bg-green-600"
-                    : "bg-red-600"
+                  teacher.status === "active" ? "bg-green-600" : "bg-red-600"
                 }`}
               >
                 {teacher.status === "active"
@@ -197,6 +257,7 @@ export default function TeacherDetailPage() {
           </div>
         </div>
 
+        {/* BUTTON SAVE */}
         {isEditing && (
           <div className="flex gap-6 mt-6">
             <button

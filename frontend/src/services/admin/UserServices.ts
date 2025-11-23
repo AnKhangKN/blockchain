@@ -27,3 +27,21 @@ export const getUserDetail = async (accessToken: string, userId: string) => {
         console.log(error);
     }
 }
+
+export const updateUserRole = async (accessToken: string, role: string) => {
+    try {
+        const res = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_API}/admin/users`,
+            {role},
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }
+        )
+
+        return res.data
+
+    } catch (error) {
+        console.log(error);
+    }
+}

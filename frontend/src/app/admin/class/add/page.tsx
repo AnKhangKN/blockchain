@@ -8,13 +8,13 @@ import * as ClassServices from "@/services/admin/ClassServices";
 const AddClassPage = () => {
   const router = useRouter();
 
-  const [name, setName] = useState("");
-  const [code, setCode] = useState("");
+  const [className, setName] = useState("");
+  const [classCode, setCode] = useState("");
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    if (!name || !code) {
+    if (!className || !classCode) {
       alert("Vui lòng nhập đầy đủ thông tin.");
       return;
     }
@@ -24,15 +24,14 @@ const AddClassPage = () => {
 
       await ClassServices.createClass(
         {
-          name,
-          code,
-          status: "active",
+          className,
+          classCode,
         },
         accessToken
       );
 
       alert("Thêm lớp học thành công!");
-      router.push("/admin/classes");
+      router.push("/admin/class");
     } catch (error) {
       console.log("Lỗi thêm lớp học:", error);
       alert("Thêm thất bại, vui lòng thử lại!");
@@ -42,19 +41,15 @@ const AddClassPage = () => {
   return (
     <div className="p-6 flex justify-center">
       <div className="bg-white p-6 rounded-2xl shadow-lg border w-full max-w-2xl">
-
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">
-          Thêm lớp học
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Thêm lớp học</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
           {/* Tên lớp */}
           <div>
             <label className="block font-medium mb-1">Tên lớp</label>
             <input
               type="text"
-              value={name}
+              value={className}
               onChange={(e) => setName(e.target.value)}
               className="w-full p-2 border rounded-lg"
               placeholder="VD: Lớp CNTT1"
@@ -66,7 +61,7 @@ const AddClassPage = () => {
             <label className="block font-medium mb-1">Mã lớp</label>
             <input
               type="text"
-              value={code}
+              value={classCode}
               onChange={(e) => setCode(e.target.value)}
               className="w-full p-2 border rounded-lg"
               placeholder="VD: CNTT101"
@@ -89,9 +84,7 @@ const AddClassPage = () => {
           >
             Quay lại
           </button>
-
         </form>
-
       </div>
     </div>
   );
