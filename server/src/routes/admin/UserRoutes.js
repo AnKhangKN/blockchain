@@ -14,10 +14,17 @@ route.get(
 );
 
 route.put(
-  "/update-user-role",
+  "/update-user-role/:userId",
   verifyToken,
   isAdmin,
   UserControllers.updateUserRole
+);
+
+route.post(
+  "/users-update/:userId",
+  verifyToken,
+  isAdmin,
+  UserControllers.updateStudent
 );
 
 route.delete("/users/:id", verifyToken, isAdmin, UserControllers.deleteUser);

@@ -100,17 +100,28 @@ export default function TeacherDetailPage() {
   // ================================
   const handleSave = async () => {
     try {
-      // const accessToken = await ValidateToken.getValidAccessToken();
-      // await UserServices.updateUser(accessToken, teacher!._id, {
-      //   email: teacher!.email,
-      //   status: teacher!.status,
-      //   subjects: teacher!.subjects,
-      // });
-      // setIsEditing(false);
+      const accessToken = await ValidateToken.getValidAccessToken();
+
+      const role = teacher?.isAdmin
+        ? "admin"
+        : teacher?.isTeacher
+        ? "teacher"
+        : "student";
+
+      await UserServices.updateUserRole(accessToken, teacher!._id, {
+        role,
+        subjects: teacher.subjects,
+      });
+
+      setIsEditing(false);
     } catch (err) {
       console.log(err);
     }
   };
+
+  const uniqueSubjects = Array.from(
+    new Map(teacher.subjects.map((s) => [s._id, s])).values()
+  );
 
   return (
     <main className="p-6 min-h-screen bg-gray-50 flex flex-col items-center">
@@ -151,7 +162,6 @@ export default function TeacherDetailPage() {
             )}
           </div>
 
-          {/* Quyền */}
           {/* QUYỀN */}
           <div className="flex justify-between">
             <span className="font-semibold">Quyền:</span>
@@ -217,13 +227,13 @@ export default function TeacherDetailPage() {
               </div>
             ) : (
               <span>
-                {teacher.subjects.length > 0
-                  ? teacher.subjects
-                      .map(
-                        (id) =>
-                          subjectList.find((s) => s._id === id)?.name || ""
-                      )
-                      .join(", ")
+                {uniqueSubjects.length > 0
+                  ? uniqueSubjects.map((sub, index) => (
+                      <span key={sub._id}>
+                        {sub.name}
+                        {index < uniqueSubjects.length - 1 ? ", " : ""}
+                      </span>
+                    ))
                   : "Chưa có môn dạy"}
               </span>
             )}

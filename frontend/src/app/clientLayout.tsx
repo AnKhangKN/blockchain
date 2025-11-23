@@ -20,13 +20,14 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
 
   useEffect(() => {
     const initApp = async () => {
-      const accessToken = await TokenUtils.getValidAccessToken();
-
-      if (!accessToken) {
-        router.push("/login");
+      // Allow unauthenticated access to public routes like /login and /register
+      const publicPaths = ["/login", "/register", "/about"];
+      if (publicPaths.includes(pathname)) {
         setIsLoading(false);
         return;
       }
+
+      const accessToken = await TokenUtils.getValidAccessToken();
 
       try {
         const res = await AuthServices.UserDetail(accessToken);

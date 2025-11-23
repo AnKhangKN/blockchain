@@ -15,11 +15,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }) => {
   const user = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
-    if (!user.isConnected) {
-      router.push("/login");
-      return;
-    }
-
     // Kiểm tra quyền
     if (role === "admin" && !user.isAdmin) router.push("/");
     if (role === "teacher" && !user.isTeacher) router.push("/");

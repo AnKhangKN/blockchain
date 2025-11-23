@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 // ================= User Schema =================
 const userSchema = new Schema(
   {
-    fullName: { type: String, required: true, trim: true },
+    fullName: { type: String, trim: true },
     email: {
       type: String,
       required: true,

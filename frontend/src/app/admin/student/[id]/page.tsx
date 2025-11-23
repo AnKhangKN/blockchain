@@ -2,66 +2,124 @@
 
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as SubjectServices from "@/services/admin/SubjectServices";
+import * as ClassServices from "@/services/admin/ClassServices";
+import * as ValidateToken from "@/utils/token.utils";
+import * as UserServices from "@/services/admin/UserServices";
+
+interface ClassType {
+  _id: string;
+  className: string;
+  classCode: string;
+}
+
+interface SubjectType {
+  _id: string;
+  name: string;
+}
+
+interface Student {
+  userId: string;
+  name: string;
+  email: string;
+  classes: ClassType[];
+  classId: string;
+  className: string;
+  subjects: SubjectType[];
+  status: boolean;
+}
 
 export default function StudentDetailPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  // Danh sách môn học demo
-  const allSubjects = ["Toán", "Lập trình", "Marketing", "Luật", "Kinh tế", "AI"];
-
-  // Danh sách lớp demo
-  const allClasses = ["CT101", "CT102", "CT103", "CT104", "CT105"];
-
-  // Sinh viên học nhiều môn (demo)
-  const [student, setStudent] = useState({
-    id,
-    name: `Sinh viên ${id}`,
-    email: `student${id}@school.edu`,
-    subjects: ["Toán", "AI"], // nhiều môn
-    className: "CT101", // 🆕 thêm lớp
-    active: Number(id) % 3 !== 0,
-  });
-
+  const [student, setStudent] = useState<Student | null>(null);
+  const [allClasses, setAllClasses] = useState<ClassType[]>([]);
+  const [allSubjects, setAllSubjects] = useState<SubjectType[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const toggleSubject = (subject: string) => {
-    setStudent((prev: any) => {
-      const exists = prev.subjects.includes(subject);
-      return {
-        ...prev,
-        subjects: exists
-          ? prev.subjects.filter((s: string) => s !== subject)
-          : [...prev.subjects, subject],
-      };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const accessToken = await ValidateToken.getValidAccessToken();
+
+        const classesRes = await ClassServices.getClasses(accessToken);
+        const subjectsRes = await SubjectServices.getSubjects(accessToken);
+        const userRes = await UserServices.getUserDetail(accessToken, id);
+
+        const userData = userRes.data;
+
+        setStudent({
+          userId: id!,
+          name: userData.fullName || "",
+          email: userData.email || "",
+          classes: userData.classes || [],
+          classId: userData.classId || (classesRes.data.data[0]?._id ?? ""),
+          className:
+            userData.className || (classesRes.data.data[0]?.className ?? ""),
+          subjects: userData.subjects || [],
+          status: userData.status ?? false,
+        });
+
+        setAllClasses(classesRes.data.data || []);
+        setAllSubjects(subjectsRes.data || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  const toggleSubject = (subject: SubjectType) => {
+    if (!student) return;
+    const exists = student.subjects.some((s) => s._id === subject._id);
+    setStudent({
+      ...student,
+      subjects: exists
+        ? student.subjects.filter((s) => s._id !== subject._id)
+        : [...student.subjects, subject],
     });
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    alert("✔ Đã lưu thay đổi (demo)");
+  const handleSave = async () => {
+    if (!student) return;
+
+    try {
+      const accessToken = await ValidateToken.getValidAccessToken();
+
+      console.log(student.subjects.map((s) => s._id));
+
+      await UserServices.updateStudent(accessToken, student.userId, {
+        fullName: student.name,
+        email: student.email,
+        classId: student.classId,
+        subjects: student.subjects.map((s) => s._id),
+        status: student.status,
+      });
+      setIsEditing(false);
+      alert("✔ Đã lưu thay đổi");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Lưu thất bại");
+    }
   };
 
-  const handleDelete = () => {
-    setShowDeleteConfirm(false);
-    alert("🗑️ Đã xóa sinh viên (demo)");
-    router.push("/teacher/students");
-  };
+  if (!student) return <p className="p-6">Đang tải dữ liệu...</p>;
 
   return (
     <main className="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-3xl border border-gray-200">
         <h1 className="text-4xl font-bold mb-8 text-center text-blue-700">
-          🎓 Thông tin sinh viên #{id}
+          🎓 Thông tin sinh viên
         </h1>
 
-        {/* NỘI DUNG */}
+        {/* Form chỉnh sửa */}
         {isEditing ? (
           <div className="space-y-6 text-lg">
-
-            {/* TÊN */}
+            {/* Tên */}
             <div>
               <label className="font-semibold text-gray-700">Tên</label>
               <input
@@ -73,7 +131,7 @@ export default function StudentDetailPage() {
               />
             </div>
 
-            {/* EMAIL */}
+            {/* Email */}
             <div>
               <label className="font-semibold text-gray-700">Email</label>
               <input
@@ -85,49 +143,61 @@ export default function StudentDetailPage() {
               />
             </div>
 
-            {/* LỚP HỌC (🆕) */}
+            {/* Lớp học */}
             <div>
               <label className="font-semibold text-gray-700">Lớp học</label>
               <select
                 className="border p-3 rounded w-full mt-1 focus:ring-2 focus:ring-blue-500"
-                value={student.className}
-                onChange={(e) =>
-                  setStudent({ ...student, className: e.target.value })
-                }
+                value={student.classId}
+                onChange={(e) => {
+                  const selectedClass = allClasses.find(
+                    (c) => c._id === e.target.value
+                  );
+                  if (selectedClass) {
+                    setStudent({
+                      ...student,
+                      classId: selectedClass._id,
+                      className: selectedClass.className,
+                    });
+                  } else {
+                    setStudent({ ...student, classId: "", className: "" });
+                  }
+                }}
               >
+                <option value="">-- Chọn lớp --</option>
                 {allClasses.map((cls) => (
-                  <option key={cls} value={cls}>
-                    {cls}
+                  <option key={cls._id} value={cls._id}>
+                    {cls.className}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* MÔN HỌC (multi-select) */}
+            {/* Môn học */}
             <div>
               <label className="font-semibold text-gray-700">Môn học</label>
               <div className="grid grid-cols-2 gap-2 mt-2">
                 {allSubjects.map((sub) => (
-                  <label key={sub} className="flex items-center gap-2">
+                  <label key={sub._id} className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      checked={student.subjects.includes(sub)}
+                      checked={student.subjects.some((s) => s._id === sub._id)}
                       onChange={() => toggleSubject(sub)}
                     />
-                    {sub}
+                    {sub.name}
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* TRẠNG THÁI */}
+            {/* Trạng thái */}
             <div>
               <label className="font-semibold text-gray-700">Trạng thái</label>
               <select
                 className="border p-3 rounded w-full mt-1 focus:ring-2 focus:ring-blue-500"
-                value={student.active ? "1" : "0"}
+                value={student.status ? "1" : "0"}
                 onChange={(e) =>
-                  setStudent({ ...student, active: e.target.value === "1" })
+                  setStudent({ ...student, status: e.target.value === "1" })
                 }
               >
                 <option value="1">Đang học</option>
@@ -136,7 +206,6 @@ export default function StudentDetailPage() {
             </div>
           </div>
         ) : (
-          /* VIEW MODE */
           <div className="space-y-6 text-lg">
             <div>
               <p className="font-semibold text-gray-700">Tên:</p>
@@ -148,11 +217,17 @@ export default function StudentDetailPage() {
               <p>{student.email}</p>
             </div>
 
-            {/* HIỂN THỊ LỚP HỌC (🆕) */}
             <div>
               <p className="font-semibold text-gray-700">Lớp học:</p>
               <p className="px-3 inline-block py-1 bg-purple-600 text-white rounded-full text-sm">
-                {student.className}
+                {student.classes.map((cls) => (
+                  <span
+                    key={cls._id}
+                    className="px-3 py-1 text-white rounded-full text-sm"
+                  >
+                    {cls.classCode}
+                  </span>
+                ))}
               </p>
             </div>
 
@@ -161,10 +236,10 @@ export default function StudentDetailPage() {
               <div className="flex gap-2 flex-wrap mt-1">
                 {student.subjects.map((sub) => (
                   <span
-                    key={sub}
+                    key={sub._id}
                     className="px-3 py-1 bg-blue-600 text-white rounded-full text-sm"
                   >
-                    {sub}
+                    {sub.name}
                   </span>
                 ))}
               </div>
@@ -174,16 +249,16 @@ export default function StudentDetailPage() {
               <p className="font-semibold text-gray-700">Trạng thái:</p>
               <span
                 className={`px-3 py-1 rounded-full text-white text-sm font-semibold ${
-                  student.active ? "bg-green-600" : "bg-red-600"
+                  student.status ? "bg-green-600" : "bg-red-600"
                 }`}
               >
-                {student.active ? "Đang học" : "Đã nghỉ"}
+                {student.status ? "Đang học" : "Đã nghỉ"}
               </span>
             </div>
           </div>
         )}
 
-        {/* BUTTONS */}
+        {/* Buttons */}
         <div className="flex justify-between items-center mt-10">
           <Link
             href="/admin/student"
@@ -218,7 +293,7 @@ export default function StudentDetailPage() {
           </div>
         </div>
 
-        {/* POPUP XOÁ */}
+        {/* Popup xác nhận xóa */}
         {showDeleteConfirm && (
           <div className="mt-8 border rounded-xl bg-red-50 p-5 text-center shadow">
             <p className="font-semibold text-red-700 mb-4">
@@ -227,7 +302,7 @@ export default function StudentDetailPage() {
 
             <div className="flex justify-center gap-4">
               <button
-                onClick={handleDelete}
+                // onClick={handleDelete}
                 className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
                 Xóa

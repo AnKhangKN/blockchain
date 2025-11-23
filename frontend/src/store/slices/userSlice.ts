@@ -1,24 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+// -------------------- TYPES --------------------
+interface Subject {
+  _id: string;
+  name: string;
+}
+
 interface UserState {
-  id: string,
+  id: string;
   fullName: string;
   email: string;
   walletAddress: string | null;
   isAdmin: boolean;
   isTeacher: boolean;
+  subjects: Subject[];
   isConnected: boolean;
 }
-
-const initialState: UserState = {
-  id: "",
-  fullName: "",
-  email: "",
-  walletAddress: null,
-  isAdmin: false,
-  isTeacher: false,
-  isConnected: false,
-};
 
 // Payload dùng khi connectUser
 interface UserPayload {
@@ -28,21 +25,44 @@ interface UserPayload {
   walletAddress: string | null;
   isAdmin: boolean;
   isTeacher: boolean;
+  subjects: Subject[];
 }
 
+// -------------------- INITIAL STATE --------------------
+const initialState: UserState = {
+  id: "",
+  fullName: "",
+  email: "",
+  walletAddress: null,
+  isAdmin: false,
+  isTeacher: false,
+  subjects: [],
+  isConnected: false,
+};
+
+// -------------------- SLICE --------------------
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
     connectUser: (state, action: PayloadAction<UserPayload>) => {
-      const { _id = "", fullName = "", email = "", walletAddress = "", isAdmin = false, isTeacher = false } = action.payload;
+      const {
+        _id = "",
+        fullName = "",
+        email = "",
+        walletAddress = null,
+        isAdmin = false,
+        isTeacher = false,
+        subjects = [],
+      } = action.payload;
 
-      state.id = _id
+      state.id = _id;
       state.fullName = fullName;
       state.email = email;
       state.walletAddress = walletAddress;
       state.isAdmin = Boolean(isAdmin);
       state.isTeacher = Boolean(isTeacher);
+      state.subjects = subjects;
       state.isConnected = true;
     },
 
@@ -53,10 +73,10 @@ const userSlice = createSlice({
       state.walletAddress = null;
       state.isAdmin = false;
       state.isTeacher = false;
+      state.subjects = [];
       state.isConnected = false;
     },
 
-    // Optional: cập nhật wallet khi giảng viên connect MetaMask sau login
     updateWallet: (state, action: PayloadAction<string>) => {
       state.walletAddress = action.payload;
     },

@@ -1,18 +1,18 @@
 import axios from "axios";
 
-export const getStudents = async (accessToken: string) => {
+export const getStudents = async (accessToken: string, subjectId: string) => {
     try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/teacher/students`,
+        const res = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_API}/teacher/students/${subjectId}`,
             {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                }
+                headers: { Authorization: `Bearer ${accessToken}` }
             }
-        )
+        );
 
-        return res.data
+        return res.data;
     } catch (error) {
         console.log(error);
     }
 }
+
 

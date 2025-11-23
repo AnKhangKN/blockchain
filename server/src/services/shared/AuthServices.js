@@ -77,7 +77,9 @@ class AuthServices {
   }
 
   async getUserDetails(userId) {
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId)
+      .select("-password")
+      .populate("subjects", "_id name");
 
     if (!user) {
       throwError("Người dùng không tồn tại!", 404);

@@ -1,9 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ethers } from "ethers";
 import ScoreManagerABI from "@/blockchain/artifacts/contracts/ScoreManager.sol/ScoreManager.json";
+import * as ValidateToken from "@/utils/token.utils";
+import * as UserServices from "@/services/teacher/UserServices";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { getAllScoresSafe } from "@/services/teacher/blockchain";
 
 interface Student {
   _id: string;
@@ -15,54 +20,63 @@ interface Subject {
   name: string;
 }
 
-interface Teacher {
-  _id: string;
-  email: string;
-  subjects: Subject[];
+interface Score {
+  subjectId: string;
+  value: number;
 }
 
-/* ---------------- MOCK DATA ---------------- */
-
-const mockStudents: Student[] = [
-  { _id: "6921ce2fc520b1b0510673e3", email: "2@gmail.com" },
-  { _id: "2", email: "student2@example.com" },
-];
-
-const mockTeachers: Teacher[] = [
-  {
-    _id: "t1",
-    email: "teacher1@example.com",
-    subjects: [
-      { _id: "sub1", name: "Math" },
-      { _id: "sub2", name: "Physics" },
-      { _id: "sub3", name: "Chemistry" },
-    ],
-  },
-];
-
-/* ---- Contract trên testnet đã deploy ---- */
 const CONTRACT_ADDRESS = "0xdDD948966a9f58e75909729d35ed4384C47e9331";
-
-/* ---------------- COMPONENT ---------------- */
 
 export default function AddGradePage() {
   const router = useRouter();
-  const students = mockStudents;
-  const teachers = mockTeachers;
+  const user = useSelector((state: RootState) => state.user);
 
-  const [form, setForm] = useState({
-    studentId: "",
-    teacherId: "",
-    subjectId: "",
-    score: "",
-  });
+  // ------------ STATE MỚI TÁCH RIÊNG ------------
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState("");
+  const [score, setScore] = useState("");
 
-  /* ---- Gửi điểm lên Smart Contract ---- */
+  const [students, setStudents] = useState<Student[]>([]);
+  const [scores, setScores] = useState<Score[]>([]);
+
+  // =========================================================
+  //                FETCH STUDENTS THEO MÔN
+  // =========================================================
+  const fetchStudentsBySubject = async (subjectId: string) => {
+    try {
+      const accessToken = await ValidateToken.getValidAccessToken();
+      const res = await UserServices.getStudents(accessToken, subjectId);
+
+      setStudents(res.data || []);
+      setSelectedStudent(""); // reset sinh viên
+      setScores([]); // reset bảng điểm khi đổi môn
+    } catch (err) {
+      console.error("Lỗi fetch students:", err);
+    }
+  };
+
+  // =========================================================
+  //                     FETCH SCORES
+  // =========================================================
+  const fetchScores = async (studentId: string) => {
+    if (!window.ethereum) return;
+
+    try {
+      const data = await getAllScoresSafe(studentId);
+
+      setScores(data);
+    } catch (err) {
+      console.error("Lỗi fetch scores:", err);
+    }
+  };
+
+  // =========================================================
+  //               ADD / UPDATE SCORE (BLOCKCHAIN)
+  // =========================================================
   const handleAdd = async () => {
     if (!window.ethereum) return alert("Bạn cần cài MetaMask!");
 
-    const { studentId, subjectId, score } = form;
-    if (!studentId || !subjectId || !score)
+    if (!selectedStudent || !selectedSubject || !score)
       return alert("Điền đầy đủ thông tin!");
 
     try {
@@ -71,53 +85,26 @@ export default function AddGradePage() {
       );
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-
       const contract = new ethers.Contract(
         CONTRACT_ADDRESS,
         ScoreManagerABI.abi,
         signer
       );
 
-      const tx = await contract.addScore(
-        studentId, // string
-        subjectId, // string
-        Number(score) // uint256
-      );
+      await contract.addScore(selectedStudent, selectedSubject, Number(score));
 
-      await tx.wait();
-
-      // fetch lại điểm sau khi thêm
-      try {
-        const provider = new ethers.providers.Web3Provider(
-          window.ethereum as any
-        );
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(
-          CONTRACT_ADDRESS,
-          ScoreManagerABI.abi,
-          signer
-        );
-
-        const updatedScores = await contract.callStatic.getAllScores(
-          form.studentId
-        );
-        console.log("Updated scores:", updatedScores);
-      } catch (err) {
-        console.error("Lỗi khi fetch điểm sau thêm:", err);
-      }
-
-      alert("Thêm điểm thành công!\nTx Hash: " + tx.hash);
+      alert("✔ Thêm điểm thành công!");
+      fetchScores(selectedStudent);
     } catch (err) {
       console.error(err);
-      alert("Gặp lỗi khi lưu điểm lên blockchain!");
+      alert("❌ Lỗi khi lưu điểm lên blockchain!");
     }
   };
 
   const handleUpdate = async () => {
     if (!window.ethereum) return alert("Bạn cần cài MetaMask!");
 
-    const { studentId, subjectId, score } = form;
-    if (!studentId || !subjectId || !score)
+    if (!selectedStudent || !selectedSubject || !score)
       return alert("Điền đầy đủ thông tin!");
 
     try {
@@ -126,123 +113,92 @@ export default function AddGradePage() {
       );
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-
       const contract = new ethers.Contract(
         CONTRACT_ADDRESS,
         ScoreManagerABI.abi,
         signer
       );
 
-      // Call updateScore (will revert if score does not exist)
-      const tx = await contract.updateScore(
-        studentId,
-        subjectId,
+      await contract.updateScore(
+        selectedStudent,
+        selectedSubject,
         Number(score)
       );
 
-      await tx.wait();
-
-      // refresh
-      try {
-        const provider = new ethers.providers.Web3Provider(
-          window.ethereum as any
-        );
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(
-          CONTRACT_ADDRESS,
-          ScoreManagerABI.abi,
-          signer
-        );
-
-        const updatedScores = await contract.callStatic.getAllScores(
-          form.studentId
-        );
-        console.log("Updated scores:", updatedScores);
-      } catch (err) {
-        console.error("Lỗi khi fetch điểm sau cập nhật:", err);
-      }
-
-      alert("Cập nhật điểm thành công!\nTx Hash: " + tx.hash);
+      alert("✔ Cập nhật điểm thành công!");
+      fetchScores(selectedStudent);
     } catch (err) {
       console.error(err);
-      alert("Gặp lỗi khi cập nhật điểm lên blockchain!");
+      alert("❌ Lỗi khi lưu điểm lên blockchain!");
     }
   };
 
   return (
     <main className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold text-center mb-6">Thêm điểm mới</h1>
+      <h1 className="text-3xl font-bold text-center mb-6">
+        Thêm/Cập nhật điểm
+      </h1>
 
       <div className="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-md space-y-5">
-        {/* Chọn sinh viên */}
-        <div>
-          <label className="font-medium">Sinh viên</label>
-          <select
-            className="w-full border p-2 rounded mt-1"
-            value={form.studentId}
-            onChange={(e) => setForm({ ...form, studentId: e.target.value })}
-          >
-            <option value="">Chọn sinh viên…</option>
-            {students.map((s) => (
-              <option key={s._id} value={s._id}>
-                {s.email}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Chọn giảng viên */}
-        <div>
-          <label className="font-medium">Giảng viên</label>
-          <select
-            className="w-full border p-2 rounded mt-1"
-            value={form.teacherId}
-            onChange={(e) =>
-              setForm({ ...form, teacherId: e.target.value, subjectId: "" })
-            }
-          >
-            <option value="">Chọn giảng viên…</option>
-            {teachers.map((t) => (
-              <option key={t._id} value={t._id}>
-                {t.email}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Chọn môn học */}
-        {form.teacherId && (
+        {/* ============ CHỌN MÔN ============ */}
+        {user.subjects && user.subjects.length > 0 && (
           <div>
             <label className="font-medium">Môn học</label>
             <select
               className="w-full border p-2 rounded mt-1"
-              value={form.subjectId}
-              onChange={(e) => setForm({ ...form, subjectId: e.target.value })}
+              value={selectedSubject}
+              onChange={(e) => {
+                const subId = e.target.value;
+                setSelectedSubject(subId);
+                fetchStudentsBySubject(subId);
+              }}
             >
               <option value="">Chọn môn học…</option>
-              {teachers
-                .find((t) => t._id === form.teacherId)
-                ?.subjects.map((sub) => (
-                  <option key={sub._id} value={sub._id}>
-                    {sub.name}
-                  </option>
-                ))}
+              {user.subjects.map((sub: Subject) => (
+                <option key={sub._id} value={sub._id}>
+                  {sub.name}
+                </option>
+              ))}
             </select>
           </div>
         )}
 
-        {/* Nhập điểm */}
+        {/* ============ CHỌN SINH VIÊN ============ */}
+        {students.length > 0 && (
+          <div>
+            <label className="font-medium">Sinh viên</label>
+            <select
+              className="w-full border p-2 rounded mt-1"
+              value={selectedStudent}
+              onChange={(e) => {
+                const stuId = e.target.value;
+                setSelectedStudent(stuId);
+                fetchScores(stuId);
+              }}
+            >
+              <option value="">Chọn sinh viên…</option>
+              {students.map((s) => (
+                <option key={s._id} value={s._id}>
+                  {s.email}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* ============ NHẬP ĐIỂM ============ */}
         <div>
           <label className="font-medium">Điểm</label>
           <input
             type="number"
             className="w-full border p-2 rounded mt-1"
             placeholder="Nhập điểm…"
-            value={form.score}
-            onChange={(e) => setForm({ ...form, score: e.target.value })}
+            value={score}
+            onChange={(e) => setScore(e.target.value)}
           />
         </div>
 
+        {/* BUTTON ADD / UPDATE */}
         <button
           onClick={handleAdd}
           className="w-full mt-2 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -250,19 +206,48 @@ export default function AddGradePage() {
           + Thêm điểm
         </button>
 
+        {/* Cập nhật điểm */}
         <button
           onClick={handleUpdate}
           className="w-full mt-2 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          ✎ Cập nhật điểm
+          + Cập nhật điểm
         </button>
 
+        {/* BACK BUTTON */}
         <button
           onClick={() => router.back()}
           className="w-full py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
         >
           ← Quay lại
         </button>
+
+        {/* ============ BẢNG ĐIỂM ============ */}
+        {scores.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold mb-2">Bảng điểm</h2>
+            <table className="w-full text-left border">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="p-2 border">Môn học</th>
+                  <th className="p-2 border">Điểm</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scores.map((s) => {
+                  return (
+                    <tr key={s.subjectId}>
+                      <td className="p-2 border">{s.subjectId}</td>
+                      <td className="p-2 border">
+                        {s.value ? s.value.toString() : s.value}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </main>
   );

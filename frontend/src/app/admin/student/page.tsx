@@ -1,29 +1,47 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import * as UserServices from "@/services/admin/UserServices";
+import * as ValidateToken from "@/utils/token.utils";
 
 interface Student {
   id: number;
-  name: string;
+  fullName: string;
   email: string;
-  active: boolean;
-  className: string; // 🆕 thêm cột lớp
+  status: string;
 }
-
-const initialStudents: Student[] = Array.from({ length: 42 }, (_, i) => ({
-  id: i + 1,
-  name: `Sinh viên ${i + 1}`,
-  email: `student${i + 1}@school.edu`,
-  active: i % 3 !== 0,
-  className: `CT10${(i % 5) + 1}`, // 🆕 dữ liệu demo lớp
-}));
 
 const PAGE_SIZE = 10;
 
 export default function StudentsPage() {
-  const [students] = useState<Student[]>(initialStudents);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [students, setStudents] = useState<Student[]>([]);
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const accessToken = await ValidateToken.getValidAccessToken();
+        const res = await UserServices.getUsers(accessToken);
+
+        const studentsFromApi = res.data
+          .filter((user: any) => !user.isAdmin && !user.isTeacher)
+          .map((user: any) => ({
+            id: user._id, // backend id
+            fullName: user.fullName || user.email.split("@")[0],
+            email: user.email,
+            status: user.status,
+          }));
+
+        setStudents(studentsFromApi);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchStudents();
+  }, []);
 
   const totalPages = Math.ceil(students.length / PAGE_SIZE);
   const startIndex = (currentPage - 1) * PAGE_SIZE;
@@ -33,13 +51,6 @@ export default function StudentsPage() {
     <main className="p-6 bg-gray-50 min-h-screen">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Danh sách Sinh viên</h1>
-
-        <Link
-          href="/admin/student/add"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
-        >
-          + Thêm Sinh viên
-        </Link>
       </div>
 
       <div className="overflow-x-auto bg-white shadow rounded-lg">
@@ -49,31 +60,25 @@ export default function StudentsPage() {
               <th className="px-6 py-3 text-left">ID</th>
               <th className="px-6 py-3 text-left">Tên Sinh viên</th>
               <th className="px-6 py-3 text-left">Email</th>
-              <th className="px-6 py-3 text-left">Lớp</th> {/* 🆕 cột lớp */}
               <th className="px-6 py-3 text-left">Trạng thái</th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-200">
-            {currentStudents.map((s) => (
+            {currentStudents.map((s, index) => (
               <tr key={s.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">{s.id}</td>
-
+                <td className="px-6 py-4">{startIndex + index + 1}</td>
                 <td className="px-6 py-4 text-blue-600 hover:underline">
-                  <Link href={`/admin/student/${s.id}`}>{s.name}</Link>
+                  <Link href={`/admin/student/${s.id}`}>{s.fullName}</Link>
                 </td>
-
                 <td className="px-6 py-4">{s.email}</td>
-
-                <td className="px-6 py-4">{s.className}</td> {/* 🆕 hiển thị lớp */}
-
                 <td className="px-6 py-4">
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-white text-sm ${
-                      s.active ? "bg-green-600" : "bg-red-600"
+                      s.status === "active" ? "bg-green-600" : "bg-red-600"
                     }`}
                   >
-                    {s.active ? "Đang học" : "Đã nghỉ"}
+                    {s.status === "active" ? "Đang học" : "Đã nghỉ"}
                   </span>
                 </td>
               </tr>
