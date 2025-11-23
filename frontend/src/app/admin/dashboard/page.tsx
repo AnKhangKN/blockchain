@@ -7,6 +7,7 @@ const stats = [
   { label: "Giảng viên", value: 42 },
   { label: "Sinh viên", value: 350 },
   { label: "Môn học", value: 18 },
+  { label: "Lớp học", value: 24 }, // ⭐ Thêm dòng này
 ];
 
 const chartData = [
@@ -22,7 +23,7 @@ export default function DashboardPage() {
       <h1 className="text-3xl font-bold tracking-tight">Tổng hợp</h1>
 
       {/* Thống kê nhanh */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((item, index) => (
           <div
             key={index}
