@@ -22,6 +22,20 @@ route.post(
   SubjectControllers.addStudentSubject
 );
 
+route.get(
+  "/subjects/:subjectId",
+  verifyToken,
+  isAdmin,
+  SubjectControllers.getSubjectById
+);
+
+route.post(
+  "/subjects/:subjectId",
+  verifyToken,
+  isAdmin,
+  SubjectControllers.updateSubject
+);
+
 route.delete(
   "/subjects/:subjectId",
   verifyToken,

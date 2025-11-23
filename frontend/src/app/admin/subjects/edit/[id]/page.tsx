@@ -18,12 +18,15 @@ const EditSubjectPage = () => {
     const fetchData = async () => {
       try {
         const accessToken = await ValidateToken.getValidAccessToken();
-        //const res = await SubjectServices.getSubjectById(id as string, accessToken);
+        const res = await SubjectServices.getSubjectById(
+          accessToken,
+          id as string
+        );
 
-        //const s = res.data;
+        const s = res;
 
-        //setName(s.name);
-       // setCode(s.code);
+        setName(s.name);
+        setCode(s.code);
       } catch (error) {
         console.log("Lỗi khi lấy môn học:", error);
       } finally {
@@ -39,7 +42,10 @@ const EditSubjectPage = () => {
     e.preventDefault();
 
     try {
-      
+      const accessToken = await ValidateToken.getValidAccessToken();
+
+      await SubjectServices.updateSubjects(accessToken, id, name, code);
+
       alert("Cập nhật thành công!");
       router.push("/admin/subjects");
     } catch (error) {
@@ -59,15 +65,11 @@ const EditSubjectPage = () => {
   return (
     <div className="p-6 flex justify-center">
       <div className="bg-white p-6 rounded-2xl shadow-lg border w-full max-w-3xl">
-        
         {/* Header */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">
-          Sửa môn học
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Sửa môn học</h1>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-
           <div>
             <label className="block mb-1 font-medium">Tên môn</label>
             <input
@@ -107,9 +109,7 @@ const EditSubjectPage = () => {
               Lưu thay đổi
             </button>
           </div>
-
         </form>
-
       </div>
     </div>
   );

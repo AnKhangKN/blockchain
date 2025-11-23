@@ -49,10 +49,6 @@ export default function StudentsPage() {
 
   return (
     <main className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Danh sách Sinh viên</h1>
-      </div>
-
       <div className="overflow-x-auto bg-white shadow rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-100">

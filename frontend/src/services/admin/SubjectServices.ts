@@ -73,6 +73,39 @@ export const addSubjectStudent = async (accessToken: string, studentId: string, 
     }
 }
 
+export const getSubjectById = async (accessToken: string, subjectId: string) => {
+    try {
+        const res = await axios.get(`${API}/admin/subjects/${subjectId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }
+        )
+
+        return res.data
+    } catch (error) {
+        console.log(error);
+    }
+} 
+
+export const updateSubjects = async (accessToken: string, subjectId: string, name: string, code:string) => {
+    try {
+        const res = await axios.post(`${API}/admin/subjects/${subjectId}`,
+            {name, code},
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }
+        )
+
+        return res.data
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export const deleteSubject = async (accessToken: string, subjectId: string) => {
     try {
         const res = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API}/admin/subjects/${subjectId}`,

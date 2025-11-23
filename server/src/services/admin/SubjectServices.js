@@ -78,6 +78,23 @@ class SubjectServices {
     return { message: "Thêm sinh viên vào môn học thành công" };
   }
 
+  async getSubjectById(subjectId) {
+    const subject = await Subject.findById(subjectId);
+
+    return subject;
+  }
+
+  async updateSubject(subjectId, name, code) {
+    const subject = await Subject.findById(subjectId);
+    if (!subject) throw new Error("Môn học không tồn tại");
+
+    subject.name = name;
+    subject.code = code;
+
+    await subject.save();
+    return subject;
+  }
+
   async deleteSubject(subjectId) {
     // Tìm subject
     const subject = await Subject.findById(subjectId);

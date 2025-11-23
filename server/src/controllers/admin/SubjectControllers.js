@@ -50,6 +50,32 @@ const addStudentSubject = async (req, res, next) => {
   }
 };
 
+const getSubjectById = async (req, res, next) => {
+  try {
+    const { subjectId } = req.params;
+
+    const result = await SubjectServices.getSubjectById(subjectId);
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateSubject = async (req, res, next) => {
+  try {
+    const { subjectId } = req.params;
+
+    const { name, code } = req.body;
+
+    const result = await SubjectServices.updateSubject(subjectId, name, code);
+
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const deleteSubject = async (req, res, next) => {
   try {
     const { subjectId } = req.params;
@@ -66,5 +92,7 @@ module.exports = {
   addNewSubject,
   addTeacherSubject,
   addStudentSubject,
+  getSubjectById,
+  updateSubject,
   deleteSubject,
 };

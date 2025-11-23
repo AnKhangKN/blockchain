@@ -2,30 +2,13 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-
-const teacherSubjects = [
-  {
-    id: 1,
-    subject: "Lập trình Web",
-    credits: 3,
-    status: "Đang diễn ra",
-  },
-  {
-    id: 2,
-    subject: "Cơ sở dữ liệu",
-    credits: 4,
-    status: "Đã kết thúc",
-  },
-  {
-    id: 3,
-    subject: "Mạng máy tính",
-    credits: 3,
-    status: "Đang diễn ra",
-  },
-];
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 export default function Grades() {
   const router = useRouter();
+
+  const user = useSelector((state: RootState) => state.user);
 
   return (
     <div className="p-6 space-y-6">
@@ -49,29 +32,18 @@ export default function Grades() {
             <thead className="bg-gray-100 text-gray-700">
               <tr>
                 <th className="p-3 text-left">Môn học</th>
-                <th className="p-3 text-center">Số tín chỉ</th>
-                <th className="p-3 text-center">Trạng thái</th>
+                <th className="p-3 text-center">Mã môn</th>
               </tr>
             </thead>
 
             <tbody>
-              {teacherSubjects.map((item) => (
+              {user.subjects.map((item) => (
                 <tr
-                  key={item.id}
+                  key={item._id}
                   className="border-t hover:bg-gray-50 transition cursor-default"
                 >
-                  <td className="p-3">{item.subject}</td>
-                  <td className="p-3 text-center">{item.credits}</td>
-
-                  <td
-                    className={`p-3 text-center font-medium ${
-                      item.status === "Đang diễn ra"
-                        ? "text-green-600"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    {item.status}
-                  </td>
+                  <td className="p-3">{item.name}</td>
+                  <td className="p-3 text-center">{item.code}</td>
                 </tr>
               ))}
             </tbody>
