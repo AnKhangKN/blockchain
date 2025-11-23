@@ -7,9 +7,7 @@ import { getAllScoresSafe } from "@/services/teacher/blockchain";
 
 interface Grade {
   subjectId: string;
-  midterm?: number;
-  final?: number;
-  value: number; // tổng kết
+  value: number;
 }
 
 export default function StudentDashboardPage() {
@@ -31,7 +29,6 @@ export default function StudentDashboardPage() {
     const fetchGrades = async () => {
       if (!studentId) return;
       setLoading(true);
-
       try {
         const scores: any = await getAllScoresSafe(studentId);
         console.log("Raw scores from blockchain:", scores);
@@ -66,8 +63,7 @@ export default function StudentDashboardPage() {
           <p className="text-center text-lg">Đang tải điểm từ blockchain...</p>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* LEFT PROFILE */}
+            {/* LEFT */}
             <section className="space-y-8">
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                 <div className="flex items-center gap-5">
@@ -91,7 +87,7 @@ export default function StudentDashboardPage() {
               </div>
             </section>
 
-            {/* RIGHT SCORE TABLE */}
+            {/* RIGHT */}
             <section className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                 <h3 className="text-xl font-bold mb-6">Bảng điểm</h3>
@@ -101,30 +97,14 @@ export default function StudentDashboardPage() {
                     <thead className="bg-slate-100 text-slate-700">
                       <tr>
                         <th className="p-3 text-left">Môn</th>
-                        <th className="p-3 text-center">Giữa kỳ</th>
-                        <th className="p-3 text-center">Cuối kỳ</th>
-                        <th className="p-3 text-center">Tổng kết</th>
+                        <th className="p-3 text-center">Điểm</th>
                       </tr>
                     </thead>
-
                     <tbody>
                       {grades.map((g, idx) => (
                         <tr key={idx} className="border-t hover:bg-slate-50">
-                          
                           <td className="p-3">{g.subjectId}</td>
-
-                          <td className="p-3 text-center">
-                            {g.midterm !== undefined ? g.midterm : "-"}
-                          </td>
-
-                          <td className="p-3 text-center">
-                            {g.final !== undefined ? g.final : "-"}
-                          </td>
-
-                          <td className="p-3 text-center font-semibold">
-                            {g.value !== undefined ? g.value : "-"}
-                          </td>
-
+                          <td className="p-3">{g.value}</td>
                         </tr>
                       ))}
                     </tbody>
