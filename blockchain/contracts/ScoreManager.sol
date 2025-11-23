@@ -10,23 +10,13 @@ contract ScoreManager {
 
     mapping(string => mapping(string => Score)) private scores;
     mapping(string => string[]) private studentSubjects; // <-- BỔ SUNG
-    address public owner;
-
-    constructor() {
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not allowed");
-        _;
-    }
 
     // Giảng viên thêm hoặc cập nhật điểm
     function setScore(
         string memory studentId,
         string memory subjectId,
         uint256 value
-    ) public onlyOwner {
+    ) public {
         // Nếu đây là lần đầu thêm subjectId cho studentId thì thêm vào danh sách
         if (scores[studentId][subjectId].value == 0) {
             studentSubjects[studentId].push(subjectId);

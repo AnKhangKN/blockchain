@@ -2,7 +2,7 @@
 import { ethers } from "ethers";
 import ScoreManagerABI from "@/blockchain/artifacts/contracts/ScoreManager.sol/ScoreManager.json";
 
-const CONTRACT_ADDRESS = "0x19B8aA4a6d1a4b41CF3AC124046FaA1BAe1749b5";
+const CONTRACT_ADDRESS = "0xD90557342fA669F55f84de88Ff9b6D4a14643838";
 
 // Biến toàn cục
 let provider: ethers.providers.JsonRpcProvider | null = null;
