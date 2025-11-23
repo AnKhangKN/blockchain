@@ -26,7 +26,11 @@ export default function TeacherDetailPage() {
     const fetchTeacher = async () => {
       try {
         const accessToken = await ValidateToken.getValidAccessToken();
-        const res = await UserServices.getUserDetail(accessToken, String(params.id));
+        const res = await UserServices.getUserDetail(
+          accessToken,
+          String(params.id)
+        );
+
         setTeacher(res.data);
       } catch (err) {
         console.log(err);
@@ -38,14 +42,27 @@ export default function TeacherDetailPage() {
   if (!teacher)
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-red-600 text-xl font-semibold">Không tìm thấy giảng viên.</p>
+        <p className="text-red-600 text-xl font-semibold">
+          Không tìm thấy giảng viên.
+        </p>
       </div>
     );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
+
     setTeacher((prev) =>
-      prev ? { ...prev, [name]: name === "active" || name === "status" ? value === "true" : value } : prev
+      prev
+        ? {
+            ...prev,
+            [name]:
+              name === "status"
+                ? value === "true"
+                : value,
+          }
+        : prev
     );
   };
 
@@ -65,30 +82,33 @@ export default function TeacherDetailPage() {
   const handleSave = async () => {
     try {
       console.log("Saved teacher:", teacher);
+
+      // const accessToken = await ValidateToken.getValidAccessToken();
+      // await UserServices.updateUser(accessToken, teacher?._id!, teacher);
+
       setIsEditing(false);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const subjectList = ["Toán", "Lý", "Hóa", "Văn", "Sinh", "Sử", "Địa", "Tin học"]; 
+  const subjectList = [
+    "Toán",
+    "Lý",
+    "Hóa",
+    "Văn",
+    "Sinh",
+    "Sử",
+    "Địa",
+    "Tin học",
+  ];
 
   return (
     <main className="p-6 min-h-screen bg-gray-50 flex flex-col items-center">
       <div className="bg-white shadow-2xl rounded-2xl w-full max-w-3xl p-10 flex flex-col gap-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-800 flex-1">
-            {isEditing ? (
-              <input
-                type="text"
-                name="email"
-                value={teacher.email.split("@")[0]}
-                onChange={handleChange}
-                className="px-3 py-2 border rounded-lg text-2xl font-bold w-full"
-              />
-            ) : (
-              teacher.email.split("@")[0]
-            )}
+            {teacher.email.split("@")[0]}
           </h1>
 
           <button
@@ -120,8 +140,9 @@ export default function TeacherDetailPage() {
             )}
           </div>
 
+          {/* 🔥 MÔN DẠY */}
           <div className="flex flex-col gap-2">
-            <span className="font-semibold">Môn học:</span>
+            <span className="font-semibold">Môn dạy:</span>
 
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2">
@@ -130,7 +151,9 @@ export default function TeacherDetailPage() {
                     <input
                       type="checkbox"
                       checked={teacher.subjects.includes(subject)}
-                      onChange={(e) => handleCheckboxSubject(subject, e.target.checked)}
+                      onChange={(e) =>
+                        handleCheckboxSubject(subject, e.target.checked)
+                      }
                     />
                     <span>{subject}</span>
                   </label>
@@ -138,11 +161,14 @@ export default function TeacherDetailPage() {
               </div>
             ) : (
               <span>
-                {teacher.subjects.length > 0 ? teacher.subjects.join(", ") : "Chưa có môn"}
+                {teacher.subjects.length > 0
+                  ? teacher.subjects.join(", ")
+                  : "Chưa có môn dạy"}
               </span>
             )}
           </div>
 
+          {/* TRẠNG THÁI */}
           <div className="flex justify-between items-center">
             <span className="font-semibold">Trạng thái:</span>
             {isEditing ? (
@@ -158,10 +184,14 @@ export default function TeacherDetailPage() {
             ) : (
               <span
                 className={`px-4 py-2 rounded-full text-white text-base font-semibold ${
-                  teacher.status === "active" ? "bg-green-600" : "bg-red-600"
+                  teacher.status === "active"
+                    ? "bg-green-600"
+                    : "bg-red-600"
                 }`}
               >
-                {teacher.status === "active" ? "Hoạt động" : "Không còn hoạt động"}
+                {teacher.status === "active"
+                  ? "Hoạt động"
+                  : "Không còn hoạt động"}
               </span>
             )}
           </div>

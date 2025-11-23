@@ -11,7 +11,7 @@ const SidebarComponent = () => {
     { label: "Tổng quan", path: "/admin/dashboard" },
     { label: "Quản lý giảng viên", path: "/admin/teachers" },
     { label: "Quản lý sinh viên", path: "/admin/student" },
-    //{ label: "Điểm", path: "/teacher/grades" },
+    { label: "Lớp học", path: "/admin/class" },
     { label: "Môn học", path: "/admin/subjects" },
   ];
 

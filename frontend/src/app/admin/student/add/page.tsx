@@ -10,6 +10,7 @@ export default function AddStudentPage() {
     name: "",
     email: "",
     subject: "Toán",
+    className: "CT101", // 🆕 thêm trường lớp
     active: true,
   });
 
@@ -67,6 +68,24 @@ export default function AddStudentPage() {
             <option value="Lập trình">Lập trình</option>
             <option value="UX/UI">UX/UI</option>
             <option value="Mạng máy tính">Mạng máy tính</option>
+          </select>
+        </div>
+
+        {/* 🆕 LỚP HỌC */}
+        <div>
+          <label className="font-medium">Lớp học</label>
+          <select
+            className="w-full border p-2 rounded mt-1 focus:ring-2 focus:ring-blue-400 outline-none"
+            value={formData.className}
+            onChange={(e) =>
+              setFormData({ ...formData, className: e.target.value })
+            }
+          >
+            <option value="CT101">CT101</option>
+            <option value="CT102">CT102</option>
+            <option value="CT103">CT103</option>
+            <option value="CT104">CT104</option>
+            <option value="CT105">CT105</option>
           </select>
         </div>
 
