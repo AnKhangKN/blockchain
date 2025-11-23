@@ -7,41 +7,36 @@ import { useParams, useRouter } from "next/navigation";
 const dummySubjects: Record<string, any> = {
   "1": {
     students: [
-      { id: 1, name: "Nguyễn Văn A", mid: 7.5, final: 8.0 },
-      { id: 2, name: "Trần Thị B", mid: 6.5, final: 7.0 },
+      { id: 1, name: "Nguyễn Văn A", total: 7.8 },
+      { id: 2, name: "Trần Thị B", total: 6.8 },
     ],
   },
   "2": {
-    students: [{ id: 3, name: "Phạm Văn C", mid: 8.0, final: 8.5 }],
+    students: [{ id: 3, name: "Phạm Văn C", total: 8.3 }],
   },
   "3": {
-    students: [{ id: 4, name: "Lê Văn D", mid: 7.0, final: 7.5 }],
+    students: [{ id: 4, name: "Lê Văn D", total: 7.3 }],
   },
 };
 
 export default function EditGradePage() {
-  // Lấy params an toàn
   const params = useParams();
   const router = useRouter();
 
-  // Ép về string an toàn (nếu undefined -> "")
   const idRaw = params?.id;
   const studentIdRaw = params?.studentId;
   const id = typeof idRaw === "string" ? idRaw : "";
   const studentId = typeof studentIdRaw === "string" ? studentIdRaw : "";
 
   const [student, setStudent] = useState<any | null>(null);
-  const [mid, setMid] = useState<string>("");
-  const [final, setFinal] = useState<string>("");
+  const [total, setTotal] = useState<string>("");
 
   useEffect(() => {
-    // nếu id hoặc studentId rỗng -> không truy xuất
     if (!id || !studentId) {
       setStudent(null);
       return;
     }
 
-    // Truy xuất bằng key string an toàn
     const subject = dummySubjects[id];
     if (!subject) {
       setStudent(null);
@@ -54,8 +49,7 @@ export default function EditGradePage() {
 
     if (found) {
       setStudent(found);
-      setMid(String(found.mid ?? ""));
-      setFinal(String(found.final ?? ""));
+      setTotal(String(found.total ?? ""));
     } else {
       setStudent(null);
     }
@@ -64,22 +58,17 @@ export default function EditGradePage() {
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const midNum = Number(mid);
-    const finalNum = Number(final);
+    const totalNum = Number(total);
 
-    if (Number.isNaN(midNum) || Number.isNaN(finalNum)) {
+    if (Number.isNaN(totalNum)) {
       alert("Vui lòng nhập điểm hợp lệ (số).");
       return;
     }
 
-    const total = ((midNum + finalNum) / 2).toFixed(2);
-
     console.log("Cập nhật điểm:", {
       subjectId: id,
       studentId,
-      mid: midNum,
-      final: finalNum,
-      total,
+      total: totalNum,
     });
 
     // TODO: Gọi API cập nhật ở đây
@@ -106,26 +95,14 @@ export default function EditGradePage() {
         onSubmit={handleUpdate}
         className="bg-white p-6 rounded-2xl shadow border space-y-4"
       >
-        {/* Giữa kỳ */}
+        {/* Điểm tổng kết */}
         <div>
-          <label className="font-medium">Điểm giữa kỳ</label>
+          <label className="font-medium">Điểm</label>
           <input
             type="number"
             step="0.1"
-            value={mid}
-            onChange={(e) => setMid(e.target.value)}
-            className="w-full mt-1 p-2 border rounded-lg"
-          />
-        </div>
-
-        {/* Cuối kỳ */}
-        <div>
-          <label className="font-medium">Điểm cuối kỳ</label>
-          <input
-            type="number"
-            step="0.1"
-            value={final}
-            onChange={(e) => setFinal(e.target.value)}
+            value={total}
+            onChange={(e) => setTotal(e.target.value)}
             className="w-full mt-1 p-2 border rounded-lg"
           />
         </div>
@@ -138,7 +115,6 @@ export default function EditGradePage() {
         </button>
       </form>
 
-      {/* Nút quay lại */}
       <div className="flex justify-center">
         <button
           onClick={() => router.back()}

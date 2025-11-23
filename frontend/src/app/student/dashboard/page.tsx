@@ -7,9 +7,7 @@ import { getAllScoresSafe } from "@/services/teacher/blockchain";
 
 interface Grade {
   subjectId: string;
-  midterm?: number;
-  final?: number;
-  value: number; // tổng kết
+  value: number;
 }
 
 export default function StudentDashboardPage() {
@@ -31,7 +29,6 @@ export default function StudentDashboardPage() {
     const fetchGrades = async () => {
       if (!studentId) return;
       setLoading(true);
-
       try {
         const scores: any = await getAllScoresSafe(studentId);
         console.log("Raw scores from blockchain:", scores);
@@ -90,7 +87,7 @@ export default function StudentDashboardPage() {
               </div>
             </section>
 
-            {/* RIGHT SCORE TABLE */}
+            {/* RIGHT */}
             <section className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                 <h3 className="text-xl font-bold mb-6">Bảng điểm</h3>
@@ -103,7 +100,6 @@ export default function StudentDashboardPage() {
                         <th className="p-3 text-center">Tổng kết</th>
                       </tr>
                     </thead>
-
                     <tbody>
                       {grades.map((g, idx) => (
                         <tr key={idx} className="border-t hover:bg-slate-50">
