@@ -11,19 +11,44 @@ contract ScoreManager {
     mapping(string => mapping(string => Score)) private scores;
     mapping(string => string[]) private studentSubjects; // <-- BỔ SUNG
 
-    // Giảng viên thêm hoặc cập nhật điểm
-    function setScore(
+    // Events
+    event ScoreAdded(string indexed studentId, string indexed subjectId, uint256 value);
+    event ScoreUpdated(string indexed studentId, string indexed subjectId, uint256 oldValue, uint256 newValue);
+
+    // Thêm điểm (chỉ thêm khi chưa có điểm)
+    function addScore(
         string memory studentId,
         string memory subjectId,
         uint256 value
     ) public {
+        require(bytes(studentId).length > 0 && bytes(subjectId).length > 0, "Invalid ids");
+        // Nếu đã có điểm (value != 0) thì không được add
+        require(scores[studentId][subjectId].value == 0, "Score already exists");
+
         // Nếu đây là lần đầu thêm subjectId cho studentId thì thêm vào danh sách
-        if (scores[studentId][subjectId].value == 0) {
-            studentSubjects[studentId].push(subjectId);
-        }
+        studentSubjects[studentId].push(subjectId);
 
         scores[studentId][subjectId] = Score(studentId, subjectId, value);
+        emit ScoreAdded(studentId, subjectId, value);
     }
+
+    // Cập nhật điểm (chỉ cập nhật khi đã tồn tại trước đó)
+    function updateScore(
+        string memory studentId,
+        string memory subjectId,
+        uint256 value
+    ) public {
+        require(bytes(studentId).length > 0 && bytes(subjectId).length > 0, "Invalid ids");
+        // Phải tồn tại điểm trước đó
+        uint256 old = scores[studentId][subjectId].value;
+        require(old != 0, "Score does not exist");
+
+        scores[studentId][subjectId] = Score(studentId, subjectId, value);
+        emit ScoreUpdated(studentId, subjectId, old, value);
+    }
+
+    // Cập nhật điểm số
+    // (deprecated empty stub removed)
 
     // Lấy điểm 1 môn
     function getScore(

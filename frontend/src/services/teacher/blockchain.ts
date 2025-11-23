@@ -2,7 +2,7 @@
 import { ethers } from "ethers";
 import ScoreManagerABI from "@/blockchain/artifacts/contracts/ScoreManager.sol/ScoreManager.json";
 
-const CONTRACT_ADDRESS = "0xeff90b55BFF06618271720FD7d52668a79E9faBf";
+const CONTRACT_ADDRESS = "0xdDD948966a9f58e75909729d35ed4384C47e9331";
 
 // Biến toàn cục
 let provider: ethers.providers.JsonRpcProvider | null = null;
@@ -21,7 +21,15 @@ export function initBlockchain() {
 export async function addScore(studentId: string, subjectId: string, score: number, signer?: ethers.Signer) {
   if (!signer) throw new Error("Signer is required to write score");
   const writeContract = new ethers.Contract(CONTRACT_ADDRESS, ScoreManagerABI.abi, signer);
-  const tx = await writeContract.setScore(studentId, subjectId, score);
+  const tx = await writeContract.addScore(studentId, subjectId, score);
+  await tx.wait();
+  return tx.hash;
+}
+
+export async function updateScore(studentId: string, subjectId: string, score: number, signer?: ethers.Signer) {
+  if (!signer) throw new Error("Signer is required to write score");
+  const writeContract = new ethers.Contract(CONTRACT_ADDRESS, ScoreManagerABI.abi, signer);
+  const tx = await writeContract.updateScore(studentId, subjectId, score);
   await tx.wait();
   return tx.hash;
 }

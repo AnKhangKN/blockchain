@@ -41,7 +41,7 @@ const mockTeachers: Teacher[] = [
 ];
 
 /* ---- Contract trên testnet đã deploy ---- */
-const CONTRACT_ADDRESS = "0xeff90b55BFF06618271720FD7d52668a79E9faBf";
+const CONTRACT_ADDRESS = "0xdDD948966a9f58e75909729d35ed4384C47e9331";
 
 /* ---------------- COMPONENT ---------------- */
 
@@ -58,7 +58,7 @@ export default function AddGradePage() {
   });
 
   /* ---- Gửi điểm lên Smart Contract ---- */
-  const handleSave = async () => {
+  const handleAdd = async () => {
     if (!window.ethereum) return alert("Bạn cần cài MetaMask!");
 
     const { studentId, subjectId, score } = form;
@@ -78,7 +78,7 @@ export default function AddGradePage() {
         signer
       );
 
-      const tx = await contract.setScore(
+      const tx = await contract.addScore(
         studentId, // string
         subjectId, // string
         Number(score) // uint256
@@ -110,6 +110,62 @@ export default function AddGradePage() {
     } catch (err) {
       console.error(err);
       alert("Gặp lỗi khi lưu điểm lên blockchain!");
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!window.ethereum) return alert("Bạn cần cài MetaMask!");
+
+    const { studentId, subjectId, score } = form;
+    if (!studentId || !subjectId || !score)
+      return alert("Điền đầy đủ thông tin!");
+
+    try {
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum as any
+      );
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+
+      const contract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        ScoreManagerABI.abi,
+        signer
+      );
+
+      // Call updateScore (will revert if score does not exist)
+      const tx = await contract.updateScore(
+        studentId,
+        subjectId,
+        Number(score)
+      );
+
+      await tx.wait();
+
+      // refresh
+      try {
+        const provider = new ethers.providers.Web3Provider(
+          window.ethereum as any
+        );
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          ScoreManagerABI.abi,
+          signer
+        );
+
+        const updatedScores = await contract.callStatic.getAllScores(
+          form.studentId
+        );
+        console.log("Updated scores:", updatedScores);
+      } catch (err) {
+        console.error("Lỗi khi fetch điểm sau cập nhật:", err);
+      }
+
+      alert("Cập nhật điểm thành công!\nTx Hash: " + tx.hash);
+    } catch (err) {
+      console.error(err);
+      alert("Gặp lỗi khi cập nhật điểm lên blockchain!");
     }
   };
 
@@ -188,10 +244,17 @@ export default function AddGradePage() {
         </div>
 
         <button
-          onClick={handleSave}
+          onClick={handleAdd}
           className="w-full mt-2 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
           + Thêm điểm
+        </button>
+
+        <button
+          onClick={handleUpdate}
+          className="w-full mt-2 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          ✎ Cập nhật điểm
         </button>
 
         <button
